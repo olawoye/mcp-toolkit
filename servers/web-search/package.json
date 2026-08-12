@@ -1,0 +1,31 @@
+{
+  "name": "@mcp-toolkit/server-web-search",
+  "version": "0.1.0",
+  "description": "MCP server for web search capabilities",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "mcp-web-search": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@mcp-toolkit/errors": "workspace:*",
+    "@mcp-toolkit/logging": "workspace:*",
+    "@mcp-toolkit/caching": "workspace:*",
+    "@mcp-toolkit/rate-limiting": "workspace:*",
+    "@mcp-toolkit/validation": "workspace:*",
+    "@mcp-toolkit/provider-google": "workspace:*",
+    "@mcp-toolkit/provider-bing": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

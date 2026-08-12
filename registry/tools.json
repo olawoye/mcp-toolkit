@@ -1,0 +1,16 @@
+{
+  "$schema": "../schemas/source-evidence.schema.json",
+  "version": "0.1.0",
+  "tools": [
+    { "name": "web_search", "server": "web-search", "description": "Full-web search (Google/Bing)", "category": "search" },
+    { "name": "web_news_search", "server": "web-search", "description": "News search", "category": "search" },
+    { "name": "maps_search_places", "server": "maps", "description": "Text-based place search", "category": "maps" },
+    { "name": "maps_place_details", "server": "maps", "description": "Place detail lookup by ID", "category": "maps" },
+    { "name": "maps_nearby_search", "server": "maps", "description": "Nearby business discovery", "category": "maps" },
+    { "name": "enrich_company", "server": "enrichment", "description": "Company registration lookup", "category": "enrichment" },
+    { "name": "enrich_person", "server": "enrichment", "description": "Person profile enrichment", "category": "enrichment" },
+    { "name": "enrich_email", "server": "enrichment", "description": "Email discovery/verification", "category": "enrichment" },
+    { "name": "enrich_phone", "server": "enrichment", "description": "Phone normalization", "category": "enrichment" },
+    { "name": "detect_technologies", "server": "technology-detection", "description": "Website tech stack detection", "category": "technology" }
+  ]
+}

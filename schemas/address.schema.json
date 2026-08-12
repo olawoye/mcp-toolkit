@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mcp-toolkit/schemas/address",
+  "title": "Address",
+  "type": "object",
+  "properties": {
+    "street": { "type": "string" },
+    "city": { "type": "string" },
+    "state": { "type": "string" },
+    "postalCode": { "type": "string" },
+    "country": { "type": "string" },
+    "countryCode": { "type": "string", "pattern": "^[A-Z]{2}$" },
+    "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+    "lng": { "type": "number", "minimum": -180, "maximum": 180 },
+    "formatted": { "type": "string" }
+  }
+}

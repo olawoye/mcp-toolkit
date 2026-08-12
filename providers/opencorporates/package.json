@@ -1,0 +1,24 @@
+{
+  "name": "@mcp-toolkit/provider-opencorporates",
+  "version": "0.1.0",
+  "description": "OpenCorporates company data provider adapter",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@mcp-toolkit/auth": "workspace:*",
+    "@mcp-toolkit/http": "workspace:*",
+    "@mcp-toolkit/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

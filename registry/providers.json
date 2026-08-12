@@ -1,0 +1,12 @@
+{
+  "version": "0.1.0",
+  "providers": [
+    { "name": "google", "package": "@mcp-toolkit/provider-google", "capabilities": ["search", "maps"], "authType": "api_key" },
+    { "name": "bing", "package": "@mcp-toolkit/provider-bing", "capabilities": ["search"], "authType": "api_key" },
+    { "name": "openstreetmap", "package": "@mcp-toolkit/provider-openstreetmap", "capabilities": ["geocoding"], "authType": "none" },
+    { "name": "hunter", "package": "@mcp-toolkit/provider-hunter", "capabilities": ["email_discovery", "email_verification"], "authType": "api_key" },
+    { "name": "apollo", "package": "@mcp-toolkit/provider-apollo", "capabilities": ["people_search", "company_search"], "authType": "api_key" },
+    { "name": "builtwith", "package": "@mcp-toolkit/provider-builtwith", "capabilities": ["technology_detection"], "authType": "api_key" },
+    { "name": "opencorporates", "package": "@mcp-toolkit/provider-opencorporates", "capabilities": ["company_registration"], "authType": "optional_api_key" }
+  ]
+}

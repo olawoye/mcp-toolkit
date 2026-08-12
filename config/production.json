@@ -1,0 +1,7 @@
+{
+  "env": "production",
+  "log": { "level": "info" },
+  "cache": { "ttlSeconds": 300 },
+  "http": { "timeoutMs": 10000, "maxRetries": 3 },
+  "rateLimiting": { "enabled": true }
+}

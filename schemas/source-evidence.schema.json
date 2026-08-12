@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mcp-toolkit/schemas/source-evidence",
+  "title": "SourceEvidence",
+  "type": "object",
+  "properties": {
+    "provider": { "type": "string" },
+    "tool": { "type": "string" },
+    "url": { "type": "string", "format": "uri" },
+    "retrievedAt": { "type": "string", "format": "date-time" },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "raw": {}
+  },
+  "required": ["provider", "retrievedAt"]
+}
