@@ -1,0 +1,6 @@
+packages:
+  - "servers/*"
+  - "providers/*"
+  - "shared/*"
+allowBuilds:
+  esbuild: true

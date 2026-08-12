@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mcp-toolkit/schemas/buying-signal",
+  "title": "BuyingSignal",
+  "type": "object",
+  "properties": {
+    "type": { "type": "string", "enum": ["job_posting", "funding", "expansion", "technology_adoption", "leadership_change", "news_mention", "event_attendance"] },
+    "description": { "type": "string" },
+    "strength": { "type": "string", "enum": ["weak", "moderate", "strong"] },
+    "detectedAt": { "type": "string", "format": "date-time" },
+    "source": { "$ref": "source-evidence" }
+  },
+  "required": ["type", "description"]
+}

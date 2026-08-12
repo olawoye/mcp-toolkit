@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://mcp-toolkit/schemas/contact",
+  "title": "Contact",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "person": { "$ref": "person" },
+    "company": { "$ref": "company" },
+    "relationship": { "type": "string", "enum": ["primary", "secondary", "champion", "blocker", "influencer"] },
+    "status": { "type": "string", "enum": ["cold", "warm", "hot", "customer", "churned"] },
+    "lastContactedAt": { "type": "string", "format": "date-time" },
+    "notes": { "type": "string" }
+  },
+  "required": ["person"]
+}

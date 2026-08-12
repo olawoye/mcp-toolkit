@@ -1,0 +1,8 @@
+{
+  "web_search": { "provider": "google", "num": 10 },
+  "web_news_search": { "provider": "google", "num": 5 },
+  "maps_search_places": { "radius": 5000 },
+  "maps_nearby_search": { "radius": 1000 },
+  "enrich_person": { "per_page": 10 },
+  "enrich_company": { "per_page": 5 }
+}

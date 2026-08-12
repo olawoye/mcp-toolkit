@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0",
+  "note": "This registry lists planned tools. Each entry will be fleshed out once the business scenario is defined.",
+  "tools": [
+    { "name": "web_search",           "server": "web-search",           "description": "Full-web search (Google/Bing)",          "category": "search",      "status": "planned" },
+    { "name": "web_news_search",       "server": "web-search",           "description": "News-focused web search",               "category": "search",      "status": "planned" },
+    { "name": "maps_search_places",    "server": "maps",                 "description": "Text-based place/business search",       "category": "maps",        "status": "planned" },
+    { "name": "maps_place_details",    "server": "maps",                 "description": "Detailed place info by place_id",        "category": "maps",        "status": "planned" },
+    { "name": "maps_nearby_search",    "server": "maps",                 "description": "Nearby business discovery",              "category": "maps",        "status": "planned" },
+    { "name": "enrich_company",        "server": "enrichment",           "description": "Company registration lookup",            "category": "enrichment",  "status": "planned" },
+    { "name": "enrich_person",         "server": "enrichment",           "description": "Person profile enrichment",              "category": "enrichment",  "status": "planned" },
+    { "name": "enrich_email",          "server": "enrichment",           "description": "Email discovery/verification",           "category": "enrichment",  "status": "planned" },
+    { "name": "enrich_phone",          "server": "enrichment",           "description": "Phone normalisation and carrier lookup", "category": "enrichment",  "status": "planned" },
+    { "name": "detect_technologies",   "server": "technology-detection", "description": "Website tech-stack detection",           "category": "technology",  "status": "planned" }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "env": "development",
+  "log": { "level": "debug" },
+  "cache": { "ttlSeconds": 60 },
+  "http": { "timeoutMs": 15000, "maxRetries": 2 },
+  "rateLimiting": { "enabled": false }
+}
