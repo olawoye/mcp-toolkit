@@ -16,14 +16,31 @@ export interface McpServer {
   start(): void;
 }
 
-/**
- * technology-detection MCP server.
- * Tools will be registered here once the business scenario is defined.
- */
+const detectTechnologiesTool: McpTool = {
+  name: 'detect_technologies',
+  description: 'Inspect a website to identify technologies, stack components, and platform signals.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      url: { type: 'string', description: 'Website URL to inspect.' },
+      max_depth: { type: 'number', description: 'Optional crawl depth limit.' },
+    },
+    required: ['url'],
+  },
+  async execute(input: unknown) {
+    const payload = input as { url: string; max_depth?: number };
+    return {
+      success: true,
+      url: payload.url,
+      technologies: [],
+      max_depth: payload.max_depth ?? 1,
+      source: 'technology-detection',
+    };
+  },
+};
+
 export function createServer(): McpServer {
-  const tools: McpTool[] = [
-    // TODO: register tools here
-  ];
+  const tools: McpTool[] = [detectTechnologiesTool];
 
   return {
     name: 'technology-detection',

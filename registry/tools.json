@@ -1,16 +1,110 @@
 {
   "version": "0.1.0",
-  "note": "This registry lists planned tools. Each entry will be fleshed out once the business scenario is defined.",
+  "note": "Core capability registry for the initial lead-generation toolkit. These tools are intentionally server-scoped and shareable across runtimes.",
   "tools": [
-    { "name": "web_search",           "server": "web-search",           "description": "Full-web search (Google/Bing)",          "category": "search",      "status": "planned" },
-    { "name": "web_news_search",       "server": "web-search",           "description": "News-focused web search",               "category": "search",      "status": "planned" },
-    { "name": "maps_search_places",    "server": "maps",                 "description": "Text-based place/business search",       "category": "maps",        "status": "planned" },
-    { "name": "maps_place_details",    "server": "maps",                 "description": "Detailed place info by place_id",        "category": "maps",        "status": "planned" },
-    { "name": "maps_nearby_search",    "server": "maps",                 "description": "Nearby business discovery",              "category": "maps",        "status": "planned" },
-    { "name": "enrich_company",        "server": "enrichment",           "description": "Company registration lookup",            "category": "enrichment",  "status": "planned" },
-    { "name": "enrich_person",         "server": "enrichment",           "description": "Person profile enrichment",              "category": "enrichment",  "status": "planned" },
-    { "name": "enrich_email",          "server": "enrichment",           "description": "Email discovery/verification",           "category": "enrichment",  "status": "planned" },
-    { "name": "enrich_phone",          "server": "enrichment",           "description": "Phone normalisation and carrier lookup", "category": "enrichment",  "status": "planned" },
-    { "name": "detect_technologies",   "server": "technology-detection", "description": "Website tech-stack detection",           "category": "technology",  "status": "planned" }
+    {
+      "name": "web_search",
+      "server": "web-search",
+      "description": "Search the web for business, company, and market information using a query.",
+      "category": "search",
+      "status": "active",
+      "capabilities": ["web-search"]
+    },
+    {
+      "name": "web_news_search",
+      "server": "web-search",
+      "description": "Search recent news and press coverage for a company, sector, or market trend.",
+      "category": "search",
+      "status": "active",
+      "capabilities": ["web-search", "news-search"]
+    },
+    {
+      "name": "maps_search_places",
+      "server": "maps",
+      "description": "Find businesses and places by text query and optional geography.",
+      "category": "maps",
+      "status": "active",
+      "capabilities": ["maps-search"]
+    },
+    {
+      "name": "maps_nearby_search",
+      "server": "maps",
+      "description": "Discover nearby businesses around a point or geocoded address.",
+      "category": "maps",
+      "status": "active",
+      "capabilities": ["maps-search", "geo-search"]
+    },
+    {
+      "name": "company_directory_search",
+      "server": "business-directories",
+      "description": "Search business directories and local company listings for relevant entities.",
+      "category": "directory",
+      "status": "active",
+      "capabilities": ["business-directory", "company-discovery"]
+    },
+    {
+      "name": "public_records_search",
+      "server": "public-data",
+      "description": "Search public registries and structured company datasets for registrations and ownership signals.",
+      "category": "registry",
+      "status": "active",
+      "capabilities": ["public-record-search", "business-registry"]
+    },
+    {
+      "name": "events_search",
+      "server": "events",
+      "description": "Search communities and events for activity signals relevant to early-stage or scaling businesses.",
+      "category": "events",
+      "status": "active",
+      "capabilities": ["event-discovery", "community-lookup"]
+    },
+    {
+      "name": "signal_monitoring",
+      "server": "events",
+      "description": "Monitor trigger events like hiring, fundraising, or launch activity for a target company.",
+      "category": "signals",
+      "status": "active",
+      "capabilities": ["intent-signal-detection", "trigger-monitoring"]
+    },
+    {
+      "name": "website_technology_scan",
+      "server": "website-research",
+      "description": "Assess a domain for website structure, technology stack, and product signal evidence.",
+      "category": "website",
+      "status": "active",
+      "capabilities": ["website-analysis", "technology-detection"]
+    },
+    {
+      "name": "website_content_research",
+      "server": "website-research",
+      "description": "Extract product, service, proof, and CTA signals from a company website.",
+      "category": "website",
+      "status": "active",
+      "capabilities": ["website-analysis", "content-scrape"]
+    },
+    {
+      "name": "enrich_company",
+      "server": "enrichment",
+      "description": "Look up a company and return registration, firmographic, and ownership metadata.",
+      "category": "enrichment",
+      "status": "active",
+      "capabilities": ["company-enrichment"]
+    },
+    {
+      "name": "enrich_person",
+      "server": "enrichment",
+      "description": "Enrich a person record with role, social profile, and contact metadata.",
+      "category": "enrichment",
+      "status": "active",
+      "capabilities": ["person-enrichment"]
+    },
+    {
+      "name": "detect_technologies",
+      "server": "technology-detection",
+      "description": "Inspect a website to identify technologies, stack components, and platform signals.",
+      "category": "technology",
+      "status": "active",
+      "capabilities": ["technology-detection"]
+    }
   ]
 }

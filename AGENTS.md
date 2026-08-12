@@ -1,6 +1,31 @@
 # AGENTS.md
 
-Guidelines for AI coding agents (Copilot, Claude, Codex, etc.) working in this repository.
+## Repository purpose
+
+This repository is the MCP Toolkit project.
+
+It provides reusable tool implementations, server capabilities, provider adapters, and shared infrastructure that a runtime can call when a declarative agent definition requires a capability. It is not the product layer and it is not the source of the outbound lead-discovery business workflow itself.
+
+This repo is intentionally decoupled from any specific agent definition or application implementation.
+
+---
+
+## Architecture boundary
+
+This repo is the capability layer.
+
+- Agent Definition repo: defines the business logic, workflow, step contracts, and validation
+- TypeScript Runtime: orchestrates execution against the definition and resolves tool IDs
+- SaaS app: owns tenancy, user settings, jobs, UI, persistence, and product workflows
+
+---
+
+## Core conventions
+
+- Tools and servers should expose capability-level interfaces, not agent-specific logic.
+- Keep providers and tool bindings decoupled from any single agent definition.
+- Prefer abstract contracts, registries, and schema-first validation.
+- No direct coupling to one specific runtime or SaaS product.
 
 ---
 

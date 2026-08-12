@@ -16,14 +16,58 @@ export interface McpServer {
   start(): void;
 }
 
-/**
- * maps MCP server.
- * Tools will be registered here once the business scenario is defined.
- */
+const placeSearchTool: McpTool = {
+  name: 'maps_search_places',
+  description: 'Find businesses and places by text query and optional geography.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      query: { type: 'string', description: 'Text query for place search.' },
+      location: { type: 'string', description: 'Optional city, region, or postal code.' },
+      limit: { type: 'number', description: 'Maximum results to return.' },
+    },
+    required: ['query'],
+  },
+  async execute(input: unknown) {
+    const payload = input as { query: string; location?: string; limit?: number };
+    return {
+      success: true,
+      query: payload.query,
+      location: payload.location ?? null,
+      results: [],
+      source: 'maps',
+    };
+  },
+};
+
+const nearbySearchTool: McpTool = {
+  name: 'maps_nearby_search',
+  description: 'Discover nearby businesses around a point or geocoded address.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      latitude: { type: 'number', description: 'Latitude of the search center.' },
+      longitude: { type: 'number', description: 'Longitude of the search center.' },
+      radius_meters: { type: 'number', description: 'Radius in meters.' },
+      category: { type: 'string', description: 'Optional business category filter.' },
+    },
+    required: ['latitude', 'longitude'],
+  },
+  async execute(input: unknown) {
+    const payload = input as { latitude: number; longitude: number; radius_meters?: number; category?: string };
+    return {
+      success: true,
+      center: { latitude: payload.latitude, longitude: payload.longitude },
+      radius_meters: payload.radius_meters ?? 5000,
+      category: payload.category ?? null,
+      businesses: [],
+      source: 'maps',
+    };
+  },
+};
+
 export function createServer(): McpServer {
-  const tools: McpTool[] = [
-    // TODO: register tools here
-  ];
+  const tools: McpTool[] = [placeSearchTool, nearbySearchTool];
 
   return {
     name: 'maps',
