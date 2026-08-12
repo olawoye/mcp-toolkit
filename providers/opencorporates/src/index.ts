@@ -1,8 +1,4 @@
-import { optionalApiKey } from '@mcp-toolkit/auth';
-import { httpGet } from '@mcp-toolkit/http';
-import { buildUrl } from '@mcp-toolkit/utils';
-
-const BASE = 'https://api.opencorporates.com/v0.4';
+// Types for OpenCorporates company registration API — implement when wiring to a tool.
 
 export interface OpenCorporatesCompany {
   name: string;
@@ -23,18 +19,19 @@ export interface OpenCorporatesSearchResponse {
   };
 }
 
+export interface OpenCorporatesSearchOptions {
+  page?: number;
+  per_page?: number;
+  jurisdiction_code?: string;
+}
+
+/**
+ * Search for company registrations via OpenCorporates.
+ * API key (OPENCORPORATES_API_KEY) is optional but increases rate limits.
+ */
 export async function openCorporatesSearch(
-  query: string,
-  options: { page?: number; per_page?: number; jurisdiction_code?: string } = {},
+  _query: string,
+  _options?: OpenCorporatesSearchOptions,
 ): Promise<OpenCorporatesSearchResponse> {
-  const apiToken = optionalApiKey('OPENCORPORATES_API_KEY');
-  const url = buildUrl(`${BASE}/companies/search`, {
-    q: query,
-    page: options.page ?? 1,
-    per_page: options.per_page ?? 10,
-    ...(options.jurisdiction_code && { jurisdiction_code: options.jurisdiction_code }),
-    ...(apiToken && { api_token: apiToken }),
-  });
-  const response = await httpGet<OpenCorporatesSearchResponse>(url);
-  return response.data;
+  throw new Error('Not implemented — implement OpenCorporates HTTP call');
 }

@@ -1,8 +1,4 @@
-import { requireApiKey } from '@mcp-toolkit/auth';
-import { httpGet } from '@mcp-toolkit/http';
-import { buildUrl } from '@mcp-toolkit/utils';
-
-const BASE = 'https://api.builtwith.com/v21/api.json';
+// Types for BuiltWith technology detection API — implement when wiring to a tool.
 
 export interface BuiltWithTechnology {
   Name: string;
@@ -19,9 +15,10 @@ export interface BuiltWithResponse {
   }>;
 }
 
-export async function builtWithLookup(domain: string): Promise<BuiltWithResponse> {
-  const key = requireApiKey({ envVar: 'BUILTWITH_API_KEY', provider: 'BuiltWith' });
-  const url = buildUrl(BASE, { KEY: key, LOOKUP: domain });
-  const response = await httpGet<BuiltWithResponse>(url);
-  return response.data;
+/**
+ * Look up the technology stack of a domain via BuiltWith.
+ * Requires: BUILTWITH_API_KEY
+ */
+export async function builtWithLookup(_domain: string): Promise<BuiltWithResponse> {
+  throw new Error('Not implemented — wire BUILTWITH_API_KEY');
 }

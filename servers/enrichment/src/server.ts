@@ -1,8 +1,4 @@
 import { createLogger } from '@mcp-toolkit/logging';
-import { enrichCompanyTool } from './tools/company.js';
-import { enrichPersonTool } from './tools/person.js';
-import { enrichEmailTool } from './tools/email.js';
-import { enrichPhoneTool } from './tools/phone.js';
 
 const logger = createLogger('enrichment-server');
 
@@ -20,14 +16,21 @@ export interface McpServer {
   start(): void;
 }
 
+/**
+ * enrichment MCP server.
+ * Tools will be registered here once the business scenario is defined.
+ */
 export function createServer(): McpServer {
-  const tools = [enrichCompanyTool, enrichPersonTool, enrichEmailTool, enrichPhoneTool];
+  const tools: McpTool[] = [
+    // TODO: register tools here
+  ];
+
   return {
     name: 'enrichment',
     version: '0.1.0',
     tools,
     start() {
-      logger.info('MCP Enrichment server ready', { tools: tools.map((t) => t.name) });
+      logger.info('MCP enrichment server ready', { tools: tools.map((t) => t.name) });
     },
   };
 }

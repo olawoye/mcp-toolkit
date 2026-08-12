@@ -1,6 +1,4 @@
 import { createLogger } from '@mcp-toolkit/logging';
-import { searchTool } from './tools/search.js';
-import { newsTool } from './tools/news.js';
 
 const logger = createLogger('web-search-server');
 
@@ -18,18 +16,21 @@ export interface McpServer {
   start(): void;
 }
 
+/**
+ * web-search MCP server.
+ * Tools will be registered here once the business scenario is defined.
+ */
 export function createServer(): McpServer {
-  const tools: McpTool[] = [searchTool, newsTool];
+  const tools: McpTool[] = [
+    // TODO: register tools here
+  ];
 
   return {
     name: 'web-search',
     version: '0.1.0',
     tools,
     start() {
-      logger.info('MCP Web Search server ready', {
-        tools: tools.map((t) => t.name),
-      });
-      // Wire to MCP transport (stdio/SSE) here when integrating with MCP SDK
+      logger.info('MCP web-search server ready', { tools: tools.map((t) => t.name) });
     },
   };
 }

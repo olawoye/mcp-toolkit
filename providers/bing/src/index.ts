@@ -1,8 +1,4 @@
-import { requireApiKey } from '@mcp-toolkit/auth';
-import { httpGet } from '@mcp-toolkit/http';
-import { buildUrl } from '@mcp-toolkit/utils';
-
-const BASE = 'https://api.bing.microsoft.com/v7.0/search';
+// Types for Bing Web Search API — implement when wiring this provider to a tool.
 
 export interface BingWebPage {
   name: string;
@@ -18,19 +14,19 @@ export interface BingSearchResponse {
   };
 }
 
+export interface BingSearchOptions {
+  count?: number;
+  offset?: number;
+  market?: string;
+}
+
+/**
+ * Search the web via Bing Web Search API.
+ * Requires: BING_SEARCH_API_KEY
+ */
 export async function bingSearch(
-  query: string,
-  options: { count?: number; offset?: number; market?: string } = {},
+  _query: string,
+  _options?: BingSearchOptions,
 ): Promise<BingSearchResponse> {
-  const key = requireApiKey({ envVar: 'BING_SEARCH_API_KEY', provider: 'Bing Search' });
-  const url = buildUrl(BASE, {
-    q: query,
-    count: options.count ?? 10,
-    offset: options.offset ?? 0,
-    mkt: options.market ?? 'en-US',
-  });
-  const response = await httpGet<BingSearchResponse>(url, {
-    headers: { 'Ocp-Apim-Subscription-Key': key },
-  });
-  return response.data;
+  throw new Error('Not implemented — wire BING_SEARCH_API_KEY');
 }

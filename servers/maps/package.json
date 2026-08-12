@@ -13,11 +13,7 @@
   },
   "dependencies": {
     "@mcp-toolkit/errors": "workspace:*",
-    "@mcp-toolkit/logging": "workspace:*",
-    "@mcp-toolkit/caching": "workspace:*",
-    "@mcp-toolkit/validation": "workspace:*",
-    "@mcp-toolkit/provider-google": "workspace:*",
-    "@mcp-toolkit/provider-openstreetmap": "workspace:*"
+    "@mcp-toolkit/logging": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

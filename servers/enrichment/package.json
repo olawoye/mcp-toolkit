@@ -13,12 +13,7 @@
   },
   "dependencies": {
     "@mcp-toolkit/errors": "workspace:*",
-    "@mcp-toolkit/logging": "workspace:*",
-    "@mcp-toolkit/validation": "workspace:*",
-    "@mcp-toolkit/caching": "workspace:*",
-    "@mcp-toolkit/provider-hunter": "workspace:*",
-    "@mcp-toolkit/provider-apollo": "workspace:*",
-    "@mcp-toolkit/provider-opencorporates": "workspace:*"
+    "@mcp-toolkit/logging": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

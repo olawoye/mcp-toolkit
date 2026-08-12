@@ -16,12 +16,7 @@
   },
   "dependencies": {
     "@mcp-toolkit/errors": "workspace:*",
-    "@mcp-toolkit/logging": "workspace:*",
-    "@mcp-toolkit/caching": "workspace:*",
-    "@mcp-toolkit/rate-limiting": "workspace:*",
-    "@mcp-toolkit/validation": "workspace:*",
-    "@mcp-toolkit/provider-google": "workspace:*",
-    "@mcp-toolkit/provider-bing": "workspace:*"
+    "@mcp-toolkit/logging": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

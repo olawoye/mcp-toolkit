@@ -1,7 +1,4 @@
-import { httpGet } from '@mcp-toolkit/http';
-import { buildUrl } from '@mcp-toolkit/utils';
-
-const BASE = 'https://nominatim.openstreetmap.org';
+// Types for Nominatim (OpenStreetMap) geocoding API — implement when wiring to a tool.
 
 export interface NominatimResult {
   place_id: number;
@@ -12,18 +9,18 @@ export interface NominatimResult {
   address?: Record<string, string>;
 }
 
+export interface NominatimSearchOptions {
+  limit?: number;
+  countrycodes?: string;
+}
+
+/**
+ * Geocode / place search via Nominatim (no API key required).
+ * Respect the Nominatim usage policy: max 1 req/s, set a descriptive User-Agent.
+ */
 export async function nominatimSearch(
-  query: string,
-  options: { limit?: number; countrycodes?: string } = {},
+  _query: string,
+  _options?: NominatimSearchOptions,
 ): Promise<NominatimResult[]> {
-  const url = buildUrl(`${BASE}/search`, {
-    q: query,
-    format: 'json',
-    limit: options.limit ?? 5,
-    ...(options.countrycodes && { countrycodes: options.countrycodes }),
-  });
-  const response = await httpGet<NominatimResult[]>(url, {
-    headers: { 'User-Agent': 'mcp-toolkit/0.1.0 (contact@example.com)' },
-  });
-  return response.data;
+  throw new Error('Not implemented — implement nominatim HTTP call');
 }

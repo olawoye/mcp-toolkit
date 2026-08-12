@@ -1,7 +1,4 @@
-import { requireApiKey } from '@mcp-toolkit/auth';
-import { httpPost } from '@mcp-toolkit/http';
-
-const BASE = 'https://api.apollo.io/v1';
+// Types for Apollo.io People & Organization API — implement when wiring to a tool.
 
 export interface ApolloPerson {
   id: string;
@@ -23,22 +20,24 @@ export interface ApolloOrganization {
   industry?: string;
 }
 
+export interface ApolloPeopleSearchParams {
+  q_organization_domains?: string[];
+  person_titles?: string[];
+  page?: number;
+  per_page?: number;
+}
+
 export interface ApolloPeopleSearchResponse {
   people: ApolloPerson[];
   pagination: { total_entries: number; page: number; per_page: number };
 }
 
-export async function apolloPeopleSearch(params: {
-  q_organization_domains?: string[];
-  person_titles?: string[];
-  page?: number;
-  per_page?: number;
-}): Promise<ApolloPeopleSearchResponse> {
-  const key = requireApiKey({ envVar: 'APOLLO_API_KEY', provider: 'Apollo.io' });
-  const response = await httpPost<ApolloPeopleSearchResponse>(
-    `${BASE}/mixed_people/search`,
-    params,
-    { headers: { 'x-api-key': key } },
-  );
-  return response.data;
+/**
+ * Search for people profiles via Apollo.io.
+ * Requires: APOLLO_API_KEY
+ */
+export async function apolloPeopleSearch(
+  _params: ApolloPeopleSearchParams,
+): Promise<ApolloPeopleSearchResponse> {
+  throw new Error('Not implemented — wire APOLLO_API_KEY');
 }

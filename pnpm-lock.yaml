@@ -28,13 +28,6 @@ importers:
         version: 1.6.1(@types/node@20.19.43)
 
   providers/apollo:
-    dependencies:
-      '@mcp-toolkit/auth':
-        specifier: workspace:*
-        version: link:../../shared/auth
-      '@mcp-toolkit/http':
-        specifier: workspace:*
-        version: link:../../shared/http
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -47,19 +40,6 @@ importers:
         version: 1.6.1(@types/node@20.19.43)
 
   providers/bing:
-    dependencies:
-      '@mcp-toolkit/auth':
-        specifier: workspace:*
-        version: link:../../shared/auth
-      '@mcp-toolkit/errors':
-        specifier: workspace:*
-        version: link:../../shared/errors
-      '@mcp-toolkit/http':
-        specifier: workspace:*
-        version: link:../../shared/http
-      '@mcp-toolkit/utils':
-        specifier: workspace:*
-        version: link:../../shared/utils
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -72,16 +52,6 @@ importers:
         version: 1.6.1(@types/node@20.19.43)
 
   providers/builtwith:
-    dependencies:
-      '@mcp-toolkit/auth':
-        specifier: workspace:*
-        version: link:../../shared/auth
-      '@mcp-toolkit/http':
-        specifier: workspace:*
-        version: link:../../shared/http
-      '@mcp-toolkit/utils':
-        specifier: workspace:*
-        version: link:../../shared/utils
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -94,19 +64,6 @@ importers:
         version: 1.6.1(@types/node@20.19.43)
 
   providers/google:
-    dependencies:
-      '@mcp-toolkit/auth':
-        specifier: workspace:*
-        version: link:../../shared/auth
-      '@mcp-toolkit/errors':
-        specifier: workspace:*
-        version: link:../../shared/errors
-      '@mcp-toolkit/http':
-        specifier: workspace:*
-        version: link:../../shared/http
-      '@mcp-toolkit/utils':
-        specifier: workspace:*
-        version: link:../../shared/utils
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -119,16 +76,6 @@ importers:
         version: 1.6.1(@types/node@20.19.43)
 
   providers/hunter:
-    dependencies:
-      '@mcp-toolkit/auth':
-        specifier: workspace:*
-        version: link:../../shared/auth
-      '@mcp-toolkit/http':
-        specifier: workspace:*
-        version: link:../../shared/http
-      '@mcp-toolkit/utils':
-        specifier: workspace:*
-        version: link:../../shared/utils
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -141,16 +88,6 @@ importers:
         version: 1.6.1(@types/node@20.19.43)
 
   providers/opencorporates:
-    dependencies:
-      '@mcp-toolkit/auth':
-        specifier: workspace:*
-        version: link:../../shared/auth
-      '@mcp-toolkit/http':
-        specifier: workspace:*
-        version: link:../../shared/http
-      '@mcp-toolkit/utils':
-        specifier: workspace:*
-        version: link:../../shared/utils
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -163,13 +100,6 @@ importers:
         version: 1.6.1(@types/node@20.19.43)
 
   providers/openstreetmap:
-    dependencies:
-      '@mcp-toolkit/http':
-        specifier: workspace:*
-        version: link:../../shared/http
-      '@mcp-toolkit/utils':
-        specifier: workspace:*
-        version: link:../../shared/utils
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -255,27 +185,12 @@ importers:
 
   servers/enrichment:
     dependencies:
-      '@mcp-toolkit/caching':
-        specifier: workspace:*
-        version: link:../../shared/caching
       '@mcp-toolkit/errors':
         specifier: workspace:*
         version: link:../../shared/errors
       '@mcp-toolkit/logging':
         specifier: workspace:*
         version: link:../../shared/logging
-      '@mcp-toolkit/provider-apollo':
-        specifier: workspace:*
-        version: link:../../providers/apollo
-      '@mcp-toolkit/provider-hunter':
-        specifier: workspace:*
-        version: link:../../providers/hunter
-      '@mcp-toolkit/provider-opencorporates':
-        specifier: workspace:*
-        version: link:../../providers/opencorporates
-      '@mcp-toolkit/validation':
-        specifier: workspace:*
-        version: link:../../shared/validation
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -311,24 +226,12 @@ importers:
 
   servers/maps:
     dependencies:
-      '@mcp-toolkit/caching':
-        specifier: workspace:*
-        version: link:../../shared/caching
       '@mcp-toolkit/errors':
         specifier: workspace:*
         version: link:../../shared/errors
       '@mcp-toolkit/logging':
         specifier: workspace:*
         version: link:../../shared/logging
-      '@mcp-toolkit/provider-google':
-        specifier: workspace:*
-        version: link:../../providers/google
-      '@mcp-toolkit/provider-openstreetmap':
-        specifier: workspace:*
-        version: link:../../providers/openstreetmap
-      '@mcp-toolkit/validation':
-        specifier: workspace:*
-        version: link:../../shared/validation
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -373,12 +276,6 @@ importers:
       '@mcp-toolkit/logging':
         specifier: workspace:*
         version: link:../../shared/logging
-      '@mcp-toolkit/provider-builtwith':
-        specifier: workspace:*
-        version: link:../../providers/builtwith
-      '@mcp-toolkit/validation':
-        specifier: workspace:*
-        version: link:../../shared/validation
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -392,27 +289,12 @@ importers:
 
   servers/web-search:
     dependencies:
-      '@mcp-toolkit/caching':
-        specifier: workspace:*
-        version: link:../../shared/caching
       '@mcp-toolkit/errors':
         specifier: workspace:*
         version: link:../../shared/errors
       '@mcp-toolkit/logging':
         specifier: workspace:*
         version: link:../../shared/logging
-      '@mcp-toolkit/provider-bing':
-        specifier: workspace:*
-        version: link:../../providers/bing
-      '@mcp-toolkit/provider-google':
-        specifier: workspace:*
-        version: link:../../providers/google
-      '@mcp-toolkit/rate-limiting':
-        specifier: workspace:*
-        version: link:../../shared/rate-limiting
-      '@mcp-toolkit/validation':
-        specifier: workspace:*
-        version: link:../../shared/validation
     devDependencies:
       '@types/node':
         specifier: ^20.0.0

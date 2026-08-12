@@ -16,14 +16,21 @@ export interface McpServer {
   start(): void;
 }
 
+/**
+ * public-data MCP server.
+ * Tools will be registered here once the business scenario is defined.
+ */
 export function createServer(): McpServer {
-  const tools: McpTool[] = [];
+  const tools: McpTool[] = [
+    // TODO: register tools here
+  ];
+
   return {
     name: 'public-data',
     version: '0.1.0',
     tools,
     start() {
-      logger.info('MCP Public Data server ready', { tools: tools.map((t) => t.name) });
+      logger.info('MCP public-data server ready', { tools: tools.map((t) => t.name) });
     },
   };
 }

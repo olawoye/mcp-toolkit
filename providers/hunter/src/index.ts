@@ -1,8 +1,4 @@
-import { requireApiKey } from '@mcp-toolkit/auth';
-import { httpGet } from '@mcp-toolkit/http';
-import { buildUrl } from '@mcp-toolkit/utils';
-
-const BASE = 'https://api.hunter.io/v2';
+// Types for Hunter.io email discovery API — implement when wiring this provider to a tool.
 
 export interface HunterEmail {
   value: string;
@@ -21,13 +17,6 @@ export interface HunterDomainSearchResponse {
   };
 }
 
-export async function hunterDomainSearch(domain: string): Promise<HunterDomainSearchResponse> {
-  const key = requireApiKey({ envVar: 'HUNTER_API_KEY', provider: 'Hunter.io' });
-  const url = buildUrl(`${BASE}/domain-search`, { domain, api_key: key });
-  const response = await httpGet<HunterDomainSearchResponse>(url);
-  return response.data;
-}
-
 export interface HunterVerifyResponse {
   data: {
     result: 'deliverable' | 'undeliverable' | 'risky' | 'unknown';
@@ -36,9 +25,22 @@ export interface HunterVerifyResponse {
   };
 }
 
-export async function hunterVerifyEmail(email: string): Promise<HunterVerifyResponse> {
-  const key = requireApiKey({ envVar: 'HUNTER_API_KEY', provider: 'Hunter.io' });
-  const url = buildUrl(`${BASE}/email-verifier`, { email, api_key: key });
-  const response = await httpGet<HunterVerifyResponse>(url);
-  return response.data;
+/**
+ * Find email addresses associated with a domain via Hunter.io.
+ * Requires: HUNTER_API_KEY
+ */
+export async function hunterDomainSearch(
+  _domain: string,
+): Promise<HunterDomainSearchResponse> {
+  throw new Error('Not implemented — wire HUNTER_API_KEY');
+}
+
+/**
+ * Verify deliverability of an email address via Hunter.io.
+ * Requires: HUNTER_API_KEY
+ */
+export async function hunterVerifyEmail(
+  _email: string,
+): Promise<HunterVerifyResponse> {
+  throw new Error('Not implemented — wire HUNTER_API_KEY');
 }

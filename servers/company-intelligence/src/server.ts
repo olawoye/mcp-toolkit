@@ -16,14 +16,21 @@ export interface McpServer {
   start(): void;
 }
 
+/**
+ * company-intelligence MCP server.
+ * Tools will be registered here once the business scenario is defined.
+ */
 export function createServer(): McpServer {
-  const tools: McpTool[] = [];
+  const tools: McpTool[] = [
+    // TODO: register tools here
+  ];
+
   return {
     name: 'company-intelligence',
     version: '0.1.0',
     tools,
     start() {
-      logger.info('MCP Company Intelligence server ready', { tools: tools.map((t) => t.name) });
+      logger.info('MCP company-intelligence server ready', { tools: tools.map((t) => t.name) });
     },
   };
 }

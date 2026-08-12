@@ -1,7 +1,4 @@
 import { createLogger } from '@mcp-toolkit/logging';
-import { searchPlacesTool } from './tools/search_places.js';
-import { placeDetailsTool } from './tools/place_details.js';
-import { nearbySearchTool } from './tools/nearby_search.js';
 
 const logger = createLogger('maps-server');
 
@@ -19,14 +16,21 @@ export interface McpServer {
   start(): void;
 }
 
+/**
+ * maps MCP server.
+ * Tools will be registered here once the business scenario is defined.
+ */
 export function createServer(): McpServer {
-  const tools: McpTool[] = [searchPlacesTool, placeDetailsTool, nearbySearchTool];
+  const tools: McpTool[] = [
+    // TODO: register tools here
+  ];
+
   return {
     name: 'maps',
     version: '0.1.0',
     tools,
     start() {
-      logger.info('MCP Maps server ready', { tools: tools.map((t) => t.name) });
+      logger.info('MCP maps server ready', { tools: tools.map((t) => t.name) });
     },
   };
 }

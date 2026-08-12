@@ -17,16 +17,20 @@ export interface McpServer {
 }
 
 /**
- * Business directory server — stub awaiting provider integrations (Yelp, Yellow Pages, etc.)
+ * business-directories MCP server.
+ * Tools will be registered here once the business scenario is defined.
  */
 export function createServer(): McpServer {
-  const tools: McpTool[] = [];
+  const tools: McpTool[] = [
+    // TODO: register tools here
+  ];
+
   return {
     name: 'business-directories',
     version: '0.1.0',
     tools,
     start() {
-      logger.info('MCP Business Directories server ready', { tools: tools.map((t) => t.name) });
+      logger.info('MCP business-directories server ready', { tools: tools.map((t) => t.name) });
     },
   };
 }
