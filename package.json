@@ -1,7 +1,7 @@
 {
   "name": "mcp-toolkit",
   "version": "0.1.0",
-  "description": "Modular MCP Toolkit — independently usable MCP servers and tools for AI agents and applications",
+  "description": "Modular MCP Toolkit \u2014 independently usable MCP servers and tools for AI agents and applications",
   "private": true,
   "scripts": {
     "build": "pnpm -r build",
