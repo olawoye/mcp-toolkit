@@ -104,6 +104,29 @@ pnpm test
 | **Schema-first** | All cross-tool data shapes are defined in `/schemas/` |
 | **Zero agent coupling** | No agent-specific logic lives here — agents decide which tools to call |
 | **Shared infrastructure** | Auth, HTTP, caching, logging, rate limiting are reused across all tools |
+| **Stateless capability layer** | This repo should not own run checkpoints, tenant job state, billing, or durable execution history |
+
+---
+
+## Architectural guardrails and TODOs
+
+This repository is the capability layer. It exposes reusable tools and shared infrastructure, but it should not become the host app’s durable execution state store.
+
+### Guardrails
+
+- Keep tools stateless and reusable.
+- Do not persist execution checkpoints or run history here.
+- Do not store tenant/job state or billing metadata in tool servers.
+- Keep tool contracts abstract and schema-first.
+- Keep the SaaS app responsible for operational state and runtime lifecycle decisions.
+
+### TODOs
+
+- [ ] Document the expected runtime callback contract for app-owned persistence.
+- [ ] Add a canonical example of how an app worker persists checkpoints and resumes work.
+- [ ] Add a real contract for tool registration and result validation.
+- [ ] Keep new servers and providers decoupled from any single workflow definition.
+- [ ] Continue reducing tool-specific coupling to product-level logic.
 
 ---
 

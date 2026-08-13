@@ -105,6 +105,14 @@
       "category": "technology",
       "status": "active",
       "capabilities": ["technology-detection"]
+    },
+    {
+      "name": "lead_scoring",
+      "server": "company-intelligence",
+      "description": "Score and rank a set of leads using a placeholder weighting model that will evolve over time.",
+      "category": "scoring",
+      "status": "active",
+      "capabilities": ["lead-scoring", "prioritization"]
     }
   ]
 }

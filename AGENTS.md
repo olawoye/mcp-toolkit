@@ -26,6 +26,31 @@ This repo is the capability layer.
 - Keep providers and tool bindings decoupled from any single agent definition.
 - Prefer abstract contracts, registries, and schema-first validation.
 - No direct coupling to one specific runtime or SaaS product.
+- Keep the toolkit stateless: no per-run execution state, no tenant job persistence, no queueing, no billing logs, and no durable run checkpoints.
+- The SaaS app owns live operational state; the toolkit exposes capabilities and shared infrastructure only.
+
+---
+
+## Minimal architectural principle
+
+The toolkit is a capability layer, not an operational datastore.
+
+It should remain reusable and stateless, with durable state handled by the app/worker layer. That includes:
+- execution checkpoints
+- run lifecycle records
+- tenant-scoped state
+- retry bookkeeping
+- customer-specific audit trails
+
+---
+
+## TODOs
+
+- [ ] Keep tool contracts capability-oriented and reusable.
+- [ ] Do not add execution-state persistence to tool servers.
+- [ ] Keep registry metadata and schema definitions provider-neutral.
+- [ ] Document the host-side contract for runtime callbacks and checkpoint persistence.
+- [ ] Ensure new tool/server work remains decoupled from any single SaaS app.
 
 ---
 
