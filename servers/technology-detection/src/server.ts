@@ -16,30 +16,84 @@ export interface McpServer {
   start(): void;
 }
 
-const detectTechnologiesTool: McpTool = {
-  name: 'detect_technologies',
-  description: 'Inspect a website to identify technologies, stack components, and platform signals.',
-  inputSchema: {
-    type: 'object',
-    properties: {
-      url: { type: 'string', description: 'Website URL to inspect.' },
-      max_depth: { type: 'number', description: 'Optional crawl depth limit.' },
-    },
-    required: ['url'],
-  },
-  async execute(input: unknown) {
-    const payload = input as { url: string; max_depth?: number };
-    return {
-      success: true,
-      url: payload.url,
-      technologies: [],
-      max_depth: payload.max_depth ?? 1,
-      source: 'technology-detection',
-    };
-  },
-};
+export const requiredEnvironment = [
+  'MT_PROVIDER_BUILTWITH_URL',
+  'MT_PROVIDER_BUILTWITH_KEY',
+] as const;
 
-export function createServer(): McpServer {
+export interface TechnologyDetectionConfig {
+  provider?: 'builtwith';
+  apiKey?: string;
+  baseUrl?: string;
+}
+
+const resolveConfig = (config?: Partial<TechnologyDetectionConfig>): Required<Pick<TechnologyDetectionConfig, 'provider' | 'apiKey' | 'baseUrl'>> => ({
+  provider: config?.provider ?? 'builtwith',
+  apiKey: config?.apiKey ?? process.env.BUILTWITH_API_KEY ?? '',
+  baseUrl: config?.baseUrl ?? process.env.BUILTWITH_BASE_URL ?? 'https://api.builtwith.com',
+});
+
+async function callBuiltWith(config: ReturnType<typeof resolveConfig>, url: string): Promise<Record<string, unknown>> {
+  if (!config.apiKey) {
+    throw new Error('BUILTWITH_API_KEY is not configured. Provide it via environment or server config.');
+  }
+
+  const lookupUrl = new URL(`${config.baseUrl}/v20/api.json`);
+  lookupUrl.searchParams.set('KEY', config.apiKey);
+  lookupUrl.searchParams.set('LOOKUP', url);
+
+  const response = await fetch(lookupUrl.toString(), {
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`BuiltWith lookup failed (${response.status}): ${body}`);
+  }
+
+  return (await response.json()) as Record<string, unknown>;
+}
+
+export function createServer(config?: Partial<TechnologyDetectionConfig>): McpServer {
+  const resolved = resolveConfig(config);
+
+  const detectTechnologiesTool: McpTool = {
+    name: 'detect_technologies',
+    description: 'Inspect a website to identify technologies, stack components, and platform signals.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        url: { type: 'string', description: 'Website URL to inspect.' },
+        max_depth: { type: 'number', description: 'Optional crawl depth limit.' },
+      },
+      required: ['url'],
+    },
+    async execute(input: unknown) {
+      const payload = input as { url: string; max_depth?: number };
+      const result = await callBuiltWith(resolved, payload.url);
+
+      const technologies = Array.isArray(result.Results)
+        ? (result.Results as Array<Record<string, unknown>>).flatMap((entry) => {
+            const techs = Array.isArray(entry.technologies) ? entry.technologies : [];
+            return techs.map((tech) => ({
+              name: typeof tech === 'string' ? tech : (tech as Record<string, unknown>).name ?? null,
+            }));
+          })
+        : [];
+
+      return {
+        success: true,
+        url: payload.url,
+        provider: resolved.provider,
+        technologies,
+        max_depth: payload.max_depth ?? 1,
+        source: 'technology-detection',
+      };
+    },
+  };
+
   const tools: McpTool[] = [detectTechnologiesTool];
 
   return {
@@ -47,7 +101,7 @@ export function createServer(): McpServer {
     version: '0.1.0',
     tools,
     start() {
-      logger.info('MCP technology-detection server ready', { tools: tools.map((t) => t.name) });
+      logger.info('MCP technology-detection server ready', { tools: tools.map((t) => t.name), provider: resolved.provider });
     },
   };
 }

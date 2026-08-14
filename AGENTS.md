@@ -102,6 +102,23 @@ Copy `.env.example` to `.env` and fill in API keys before running any server.
 - No HTTP calls, no business logic — just type contracts.
 - Providers must never import from `servers/`.
 
+### Credential Declaration Rule (required)
+
+When a tool or server is being implemented, the implementation must declare all environment variables and credentials it may require to work with its providers and downstream resources.
+
+This declaration must live in the server/tool implementation itself, in a file such as `src/server.ts` or `src/config.ts`, and must be mirrored in the sample app manifest in the agent definition repo.
+
+Example pattern:
+
+```ts
+export const requiredEnvironment = [
+  'MT_PROVIDER_SERP_URL',
+  'MT_PROVIDER_SERP_KEY',
+];
+```
+
+The manifest should then include a matching `credentials` array so the SaaS app knows which environment variables to prepare before the agent runs.
+
 ### Shared packages (`shared/<name>/`)
 
 - Each package has a single `src/index.ts` entry point.
@@ -120,8 +137,10 @@ Copy `.env.example` to `.env` and fill in API keys before running any server.
 1. Identify the server that owns the tool (or create a new server).
 2. Read [`docs/adding-a-tool.md`](docs/adding-a-tool.md) for the full walkthrough.
 3. Define the input/output contract in `schemas/` if it introduces new data shapes.
-4. Register the tool in `registry/tools.json`.
-5. Add unit tests co-located with the implementation.
+4. Declare every provider and environment dependency in a `requiredEnvironment` export at the server/tool level.
+5. Register the tool in `registry/tools.json`.
+6. Mirror the credential requirements in the sample manifest in the Agent Definition repo.
+7. Add unit tests co-located with the implementation.
 
 ## Adding a New Provider
 
@@ -171,3 +190,19 @@ See `.env.example` for the full list. The `shared/auth` package provides `requir
 - **Independent deployability**: every server in `servers/` must be buildable and testable without any other server being present.
 - **Schema-first**: cross-tool data shapes must be defined in `schemas/` before implementing.
 - **Provider independence**: tools declare which provider interface they depend on; the concrete provider can be swapped without changing the tool contract.
+- **Credential transparency**: any tool or server that can require a provider URL, secret, token, or downstream API config must export a `requiredEnvironment` list and the sample manifest must mirror it.
+- **SaaS-owned secret resolution**: the toolkit never owns permanent credentials; the host app resolves `credentialRef` values and injects them at runtime.
+
+---
+
+## SaaS app contract
+
+The SaaS app should use the toolkit and the agent definition together in this order:
+
+1. Load the declarative workflow from the Agent Definition repo.
+2. Load a tenant-specific local manifest or the sample manifest as a deployment guide.
+3. Check each server's `requiredEnvironment` export and ensure those values exist in the app environment or tenant secret store.
+4. Resolve `credentialRef` patterns like `secret://tenants/${tenantId}/web-search/serpapi` before tool execution.
+5. Invoke the runtime with the resolved tool config while keeping the toolkit stateless and the app stateful.
+
+This keeps the runtime, toolkit, and app responsibilities clean and predictable.
