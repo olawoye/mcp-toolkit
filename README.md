@@ -93,6 +93,8 @@ pnpm build
 pnpm test
 ```
 
+The repo enforces a registry contract on every test run: `node scripts/validate-registry.mjs` verifies that every declared tool has a unique ID, valid server mapping, and non-empty capability list before the monorepo test suite executes.
+
 ---
 
 ## Key Design Principles

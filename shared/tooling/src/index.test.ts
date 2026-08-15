@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { ToolRegistry } from './index';
 
 const webSearchTool = {

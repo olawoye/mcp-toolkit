@@ -40,7 +40,7 @@
       "description": "Search business directories and local company listings for relevant entities across region and country scopes.",
       "category": "directory",
       "status": "active",
-      "capabilities": ["business-directory", "company-discovery", "regional-discovery"]
+      "capabilities": ["business-directory", "company-discovery", "regional-discovery", "company_directory_search"]
     },
     {
       "name": "person_directory_search",
@@ -48,7 +48,7 @@
       "description": "Search professional and people directories for founders, executives, and decision-makers by company, role, and geography.",
       "category": "directory",
       "status": "active",
-      "capabilities": ["people-discovery", "decision-maker-search", "regional-discovery"]
+      "capabilities": ["people-discovery", "decision-maker-search", "regional-discovery", "person_directory_search"]
     },
     {
       "name": "public_records_search",
@@ -56,7 +56,15 @@
       "description": "Search public registries and structured company datasets for registrations and ownership signals.",
       "category": "registry",
       "status": "active",
-      "capabilities": ["public-record-search", "business-registry"]
+      "capabilities": ["public-record-search", "business-registry", "business-registry-access", "public_records_search"]
+    },
+    {
+      "name": "marketplace_search",
+      "server": "public-data",
+      "description": "Search marketplaces and platform listings for demand-side or commercial activity.",
+      "category": "marketplace",
+      "status": "active",
+      "capabilities": ["marketplace-discovery", "platform-search", "marketplace_search"]
     },
     {
       "name": "events_search",
@@ -75,12 +83,12 @@
       "capabilities": ["intent-signal-detection", "trigger-monitoring"]
     },
     {
-      "name": "website_technology_scan",
+      "name": "website_research",
       "server": "website-research",
       "description": "Assess a domain for website structure, technology stack, and product signal evidence.",
       "category": "website",
       "status": "active",
-      "capabilities": ["website-analysis", "technology-detection"]
+      "capabilities": ["website-analysis", "content-scrape", "technology-detection", "website_research"]
     },
     {
       "name": "website_content_research",
@@ -88,7 +96,15 @@
       "description": "Extract product, service, proof, and CTA signals from a company website.",
       "category": "website",
       "status": "active",
-      "capabilities": ["website-analysis", "content-scrape"]
+      "capabilities": ["website-analysis", "content-scrape", "website_content_research"]
+    },
+    {
+      "name": "website_technology_scan",
+      "server": "website-research",
+      "description": "Assess a domain for website structure, technology stack, and product signal evidence.",
+      "category": "website",
+      "status": "active",
+      "capabilities": ["website-analysis", "technology-detection", "website_technology_scan"]
     },
     {
       "name": "enrich_company",
@@ -112,7 +128,15 @@
       "description": "Inspect a website to identify technologies, stack components, and platform signals.",
       "category": "technology",
       "status": "active",
-      "capabilities": ["technology-detection"]
+      "capabilities": ["technology-detection", "detect_technologies"]
+    },
+    {
+      "name": "competitive_intelligence_search",
+      "server": "public-data",
+      "description": "Search for competitive signals, adjacent-market activity, and seller readiness indicators.",
+      "category": "intelligence",
+      "status": "active",
+      "capabilities": ["market-intelligence", "competitive-analysis", "competitive_intelligence_search"]
     },
     {
       "name": "lead_scoring",
