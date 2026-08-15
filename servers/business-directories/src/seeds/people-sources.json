@@ -1,0 +1,50 @@
+[
+  {
+    "id": "us-linkedin-people",
+    "name": "LinkedIn People Search",
+    "kind": "professional",
+    "entity_types": ["person"],
+    "region": "north-america",
+    "country": "us",
+    "url": "https://www.linkedin.com/search/results/people",
+    "search_modes": ["person_name", "company_name", "location"],
+    "notes": "Useful for founder and executive person discovery.",
+    "recommended_for": ["founder", "executive", "decision-maker"]
+  },
+  {
+    "id": "uk-linkedin-people",
+    "name": "LinkedIn UK People Search",
+    "kind": "professional",
+    "entity_types": ["person"],
+    "region": "europe",
+    "country": "uk",
+    "url": "https://www.linkedin.com/search/results/people",
+    "search_modes": ["person_name", "company_name", "location"],
+    "notes": "Useful for UK founders and senior decision-makers.",
+    "recommended_for": ["founder", "executive", "decision-maker"]
+  },
+  {
+    "id": "sg-linkedin-people",
+    "name": "Singapore professional profiles",
+    "kind": "professional",
+    "entity_types": ["person"],
+    "region": "asia",
+    "country": "sg",
+    "url": "https://www.linkedin.com",
+    "search_modes": ["person_name", "company_name", "location"],
+    "notes": "Useful for senior-level individual discovery in Singapore market.",
+    "recommended_for": ["executive", "founder", "decision-maker"]
+  },
+  {
+    "id": "au-linkedin-people",
+    "name": "Australia professional profiles",
+    "kind": "professional",
+    "entity_types": ["person"],
+    "region": "oceania",
+    "country": "au",
+    "url": "https://www.linkedin.com",
+    "search_modes": ["person_name", "company_name", "location"],
+    "notes": "Useful for executive and founder discovery in Australia.",
+    "recommended_for": ["executive", "founder", "decision-maker"]
+  }
+]

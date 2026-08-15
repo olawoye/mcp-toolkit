@@ -37,10 +37,18 @@
     {
       "name": "company_directory_search",
       "server": "business-directories",
-      "description": "Search business directories and local company listings for relevant entities.",
+      "description": "Search business directories and local company listings for relevant entities across region and country scopes.",
       "category": "directory",
       "status": "active",
-      "capabilities": ["business-directory", "company-discovery"]
+      "capabilities": ["business-directory", "company-discovery", "regional-discovery"]
+    },
+    {
+      "name": "person_directory_search",
+      "server": "business-directories",
+      "description": "Search professional and people directories for founders, executives, and decision-makers by company, role, and geography.",
+      "category": "directory",
+      "status": "active",
+      "capabilities": ["people-discovery", "decision-maker-search", "regional-discovery"]
     },
     {
       "name": "public_records_search",
