@@ -20,31 +20,39 @@ export const requiredEnvironment = [
   'MT_CUSTOM_CRM_API_URL',
   'MT_CUSTOM_CRM_API_KEY',
   'MT_CUSTOM_CRM_TENANT_ID',
+  'MT_CUSTOM_CRM_AGENT_KEY',
 ] as const;
 
 export interface CrmServerConfig {
   baseUrl?: string;
   apiKey?: string;
   tenantId?: string;
+  agentKey?: string;
 }
 
-const resolveConfig = (config?: Partial<CrmServerConfig>): Required<Pick<CrmServerConfig, 'baseUrl' | 'apiKey' | 'tenantId'>> => ({
-  baseUrl: config?.baseUrl ?? process.env.SAAS_CRM_BASE_URL ?? 'https://crm.example.com',
-  apiKey: config?.apiKey ?? process.env.SAAS_CRM_API_KEY ?? '',
-  tenantId: config?.tenantId ?? process.env.SAAS_TENANT_ID ?? 'default',
+const resolveConfig = (config?: Partial<CrmServerConfig>): Required<Pick<CrmServerConfig, 'baseUrl' | 'apiKey' | 'tenantId' | 'agentKey'>> => ({
+  baseUrl: config?.baseUrl ?? process.env.MT_CUSTOM_CRM_API_URL ?? 'http://localhost:3000',
+  apiKey: config?.apiKey ?? process.env.MT_CUSTOM_CRM_API_KEY ?? '',
+  tenantId: config?.tenantId ?? process.env.MT_CUSTOM_CRM_TENANT_ID ?? 'default',
+  agentKey: config?.agentKey ?? process.env.MT_CUSTOM_CRM_AGENT_KEY ?? 'crm_campaign_lead_generation',
 });
 
 async function callCustomCrm(config: ReturnType<typeof resolveConfig>, endpoint: string, body: Record<string, unknown>) {
   if (!config.apiKey) {
-    throw new Error('SAAS_CRM_API_KEY is not configured. Provide it via environment or server config.');
+    throw new Error('MT_CUSTOM_CRM_API_KEY is not configured. Provide it via environment or server config.');
   }
 
-  const response = await fetch(`${config.baseUrl}${endpoint}`, {
+  const targetUrl = /^https?:\/\//i.test(endpoint)
+    ? endpoint
+    : new URL(endpoint, config.baseUrl).toString();
+
+  const response = await fetch(targetUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
       'x-api-key': config.apiKey,
+      'x-agent-key': config.agentKey,
       'x-tenant-id': config.tenantId,
     },
     body: JSON.stringify(body),
@@ -61,69 +69,41 @@ async function callCustomCrm(config: ReturnType<typeof resolveConfig>, endpoint:
 export function createServer(config?: Partial<CrmServerConfig>): McpServer {
   const resolved = resolveConfig(config);
 
-  const createLeadTool: McpTool = {
-    name: 'crm_create_lead',
-    description: 'Create a lead in the SaaS CRM or application database.',
+  const upsertLeadTool: McpTool = {
+    name: 'crm_upsert_lead',
+    description: 'Upsert a lead in the SaaS CRM using the tenant-specific CRM integration endpoint.',
     inputSchema: {
       type: 'object',
       properties: {
-        company_name: { type: 'string' },
-        domain: { type: 'string' },
-        email: { type: 'string' },
-        score: { type: 'number' },
-        source: { type: 'string' },
+        body: {
+          type: 'object',
+          description: 'Raw JSON payload to send to the CRM endpoint.',
+          additionalProperties: true,
+        },
+        endpoint: {
+          type: 'string',
+          description: 'Full or relative CRM endpoint, for example /api/integrations/crm/clients/upsert-by-email.',
+        },
       },
-      required: ['company_name'],
+      required: ['body', 'endpoint'],
     },
     async execute(input: unknown) {
       const payload = input as Record<string, unknown>;
-      const result = await callCustomCrm(resolved, '/api/leads', {
-        tenantId: resolved.tenantId,
-        company_name: payload.company_name,
-        domain: payload.domain,
-        email: payload.email,
-        score: payload.score,
-        source: payload.source ?? 'mcp-toolkit',
-      });
+      const body = payload.body as Record<string, unknown>;
+      const endpoint = String(payload.endpoint ?? '/api/integrations/crm/clients/upsert-by-email');
+
+      const result = await callCustomCrm(resolved, endpoint, body);
 
       return {
         success: true,
-        created: result,
+        upserted: result,
         source: 'crm',
+        endpoint,
       };
     },
   };
 
-  const updateLeadTool: McpTool = {
-    name: 'crm_update_lead',
-    description: 'Update an existing lead record in the SaaS CRM.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        leadId: { type: 'string' },
-        status: { type: 'string' },
-        score: { type: 'number' },
-      },
-      required: ['leadId'],
-    },
-    async execute(input: unknown) {
-      const payload = input as Record<string, unknown>;
-      const result = await callCustomCrm(resolved, '/api/leads/update', {
-        tenantId: resolved.tenantId,
-        leadId: payload.leadId,
-        status: payload.status,
-        score: payload.score,
-      });
-
-      return {
-        success: true,
-        updated: result,
-        source: 'crm',
-      };
-    },
-  };
-
-  const tools: McpTool[] = [createLeadTool, updateLeadTool];
+  const tools: McpTool[] = [upsertLeadTool];
 
   return {
     name: 'crm',

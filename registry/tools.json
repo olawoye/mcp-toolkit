@@ -139,6 +139,14 @@
       "capabilities": ["market-intelligence", "competitive-analysis", "competitive_intelligence_search"]
     },
     {
+      "name": "crm_upsert_lead",
+      "server": "crm",
+      "description": "Upsert a lead record in the SaaS CRM using a tenant-specific integration endpoint and raw JSON request body.",
+      "category": "crm",
+      "status": "active",
+      "capabilities": ["lead-write", "contact-write", "activity-write", "crm_upsert_lead"]
+    },
+    {
       "name": "lead_scoring",
       "server": "company-intelligence",
       "description": "Score and rank a set of leads using a placeholder weighting model that will evolve over time.",
