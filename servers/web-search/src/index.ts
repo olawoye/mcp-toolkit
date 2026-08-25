@@ -5,5 +5,10 @@
  */
 import { createServer } from './server.js';
 
-const server = createServer();
-server.start();
+if (require.main === module) {
+  const server = createServer();
+  server.start();
+}
+
+export { createServer } from './server.js';
+export type { McpServer, McpTool } from './server.js';
