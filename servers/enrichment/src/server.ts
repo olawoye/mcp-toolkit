@@ -87,18 +87,31 @@ export function createServer(config?: Partial<EnrichmentServerConfig>): McpServe
       required: ['domain'],
     },
     async execute(input: unknown) {
-      const payload = input as { domain: string; company_name?: string };
+      const payload = input as { domain?: string; company_name?: string };
+      const domain = payload.domain?.trim();
+      const companyName = payload.company_name?.trim();
+
+      if (!domain && !companyName) {
+        return {
+          success: false,
+          reason: 'not_enrichable',
+          message: 'Company enrichment requires a company name or domain before invoking a paid provider lookup.',
+          provider: resolved.provider,
+          source: 'enrichment',
+        };
+      }
+
       const result = await callApollo(resolved, '/mixed_companies/search', {
-        q_organization_domains_list: payload.domain ? [payload.domain] : [],
-        q_organization_name: payload.company_name ?? payload.domain,
+        q_organization_domains_list: domain ? [domain] : [],
+        q_organization_name: companyName ?? domain,
         page: 1,
         per_page: 5,
       });
 
       return {
         success: true,
-        domain: payload.domain,
-        company_name: payload.company_name ?? null,
+        domain: domain ?? null,
+        company_name: companyName ?? null,
         provider: resolved.provider,
         firmographics: result?.organization ?? result?.organizations ?? {},
         source: 'enrichment',
@@ -119,20 +132,34 @@ export function createServer(config?: Partial<EnrichmentServerConfig>): McpServe
       required: ['name'],
     },
     async execute(input: unknown) {
-      const payload = input as { name: string; company_domain?: string; email?: string };
+      const payload = input as { name?: string; company_domain?: string; email?: string };
+      const personName = payload.name?.trim();
+      const companyDomain = payload.company_domain?.trim();
+      const email = payload.email?.trim();
+
+      if (!personName && !companyDomain && !email) {
+        return {
+          success: false,
+          reason: 'not_enrichable',
+          message: 'Person enrichment requires a name, email, or company domain before invoking a paid provider lookup.',
+          provider: resolved.provider,
+          source: 'enrichment',
+        };
+      }
+
       const result = await callApollo(resolved, '/mixed_people/api_search', {
-        q_organization_domains_list: payload.company_domain ? [payload.company_domain] : [],
-        q_keywords: payload.name,
-        contact_email_status: payload.email ? ['verified'] : [],
+        q_organization_domains_list: companyDomain ? [companyDomain] : [],
+        q_keywords: personName ?? email ?? companyDomain ?? '',
+        contact_email_status: email ? ['verified'] : [],
         page: 1,
         per_page: 5,
       });
 
       return {
         success: true,
-        name: payload.name,
-        company_domain: payload.company_domain ?? null,
-        email: payload.email ?? null,
+        name: personName ?? null,
+        company_domain: companyDomain ?? null,
+        email: email ?? null,
         provider: resolved.provider,
         profile: result?.person ?? result?.people ?? null,
         source: 'enrichment',
