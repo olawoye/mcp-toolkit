@@ -34,12 +34,27 @@ const resolveConfig = (config?: Partial<EnrichmentServerConfig>): Required<Pick<
   baseUrl: config?.baseUrl ?? process.env.MT_PROVIDER_APOLLO_URL ?? process.env.APOLLO_BASE_URL ?? 'https://api.apollo.io',
 });
 
+function buildApolloUrl(baseUrl: string, endpoint: string): string {
+  const normalizedBase = baseUrl.replace(/\/+$/, '');
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+
+  if (normalizedBase.endsWith('/api/v1')) {
+    return `${normalizedBase}${normalizedEndpoint}`;
+  }
+
+  if (normalizedBase.includes('/api/v1')) {
+    return `${normalizedBase.replace(/\/api\/v1$/, '')}/api/v1${normalizedEndpoint}`;
+  }
+
+  return `${normalizedBase}/api/v1${normalizedEndpoint}`;
+}
+
 async function callApollo(config: ReturnType<typeof resolveConfig>, endpoint: string, body: Record<string, unknown>): Promise<Record<string, unknown>> {
   if (!config.apiKey) {
     throw new Error('APOLLO_API_KEY is not configured. Provide it via environment or server config.');
   }
 
-  const response = await fetch(`${config.baseUrl}${endpoint}`, {
+  const response = await fetch(buildApolloUrl(config.baseUrl, endpoint), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -73,9 +88,9 @@ export function createServer(config?: Partial<EnrichmentServerConfig>): McpServe
     },
     async execute(input: unknown) {
       const payload = input as { domain: string; company_name?: string };
-      const result = await callApollo(resolved, '/v1/organizations/search', {
-        domain: payload.domain,
-        organization_name: payload.company_name ?? payload.domain,
+      const result = await callApollo(resolved, '/mixed_companies/search', {
+        q_organization_domains_list: payload.domain ? [payload.domain] : [],
+        q_organization_name: payload.company_name ?? payload.domain,
         page: 1,
         per_page: 5,
       });
@@ -105,10 +120,10 @@ export function createServer(config?: Partial<EnrichmentServerConfig>): McpServe
     },
     async execute(input: unknown) {
       const payload = input as { name: string; company_domain?: string; email?: string };
-      const result = await callApollo(resolved, '/v1/people/search', {
-        q_organization_domains: payload.company_domain ? [payload.company_domain] : undefined,
-        person_name: payload.name,
-        email: payload.email,
+      const result = await callApollo(resolved, '/mixed_people/api_search', {
+        q_organization_domains_list: payload.company_domain ? [payload.company_domain] : [],
+        q_keywords: payload.name,
+        contact_email_status: payload.email ? ['verified'] : [],
         page: 1,
         per_page: 5,
       });
