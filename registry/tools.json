@@ -107,6 +107,14 @@
       "capabilities": ["website-analysis", "technology-detection", "website_technology_scan"]
     },
     {
+      "name": "extract_website_data",
+      "server": "website-extraction",
+      "description": "Fetch a website and extract structured lead data using an extraction prompt and optional JSON schema.",
+      "category": "website",
+      "status": "active",
+      "capabilities": ["website-extraction", "structured-data-extraction", "extract_website_data"]
+    },
+    {
       "name": "enrich_company",
       "server": "enrichment",
       "description": "Look up a company and return registration, firmographic, and ownership metadata.",
