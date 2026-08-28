@@ -27,6 +27,7 @@ export const requiredEnvironment: string[] = [
 
 export interface YellowPagesServerConfig {
   providerPriority?: string[];
+  loopMode?: 'first_enriched' | 'first';
 }
 
 interface ProviderCandidate {
@@ -34,6 +35,42 @@ interface ProviderCandidate {
   envName: string;
   baseUrl?: string;
   lookup: (config: Record<string, string>, input: Record<string, string | number | undefined>) => Promise<Record<string, unknown>>;
+}
+
+const LOOP_MODE_DEFAULT = 'first_enriched' as const;
+
+function normalizeLoopMode(value?: string): 'first_enriched' | 'first' {
+  const normalized = (value ?? process.env.MT_YELLOW_PAGES_LOOP_MODE ?? LOOP_MODE_DEFAULT).trim().toLowerCase();
+  return normalized === 'first' ? 'first' : 'first_enriched';
+}
+
+function isConfiguredEnvironmentValue(value: string | undefined): boolean {
+  const normalized = (value ?? '').trim().toLowerCase();
+  return normalized.length > 0 && !['na', 'none', 'null', 'undefined'].includes(normalized);
+}
+
+function getExistingLeadRecords(input: Record<string, unknown>): unknown {
+  const candidates = [
+    input.lead_records,
+    input.leads,
+    input.records,
+    input.existing_leads,
+    input.existingRecords,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) {
+      return candidate;
+    }
+  }
+
+  return input;
+}
+
+function hasEnrichedContact(contact: Record<string, unknown> | undefined): boolean {
+  if (!contact) return false;
+  const email = typeof contact.email === 'string' ? contact.email.trim() : '';
+  return email.length > 0;
 }
 
 const providerCandidates: ProviderCandidate[] = [
@@ -131,7 +168,7 @@ const providerCandidates: ProviderCandidate[] = [
 ];
 
 function getAvailableProviders(): ProviderCandidate[] {
-  return providerCandidates.filter((provider) => Boolean(process.env[provider.envName]));
+  return providerCandidates.filter((provider) => isConfiguredEnvironmentValue(process.env[provider.envName]));
 }
 
 function extractContactsFromProvider(result: Record<string, unknown>, providerName: string): Record<string, unknown>[] {
@@ -185,16 +222,22 @@ function extractContactsFromProvider(result: Record<string, unknown>, providerNa
   return contacts;
 }
 
-async function lookupFallbackContact(input: Record<string, string | number | undefined>) {
+async function lookupFallbackContact(input: Record<string, string | number | undefined>, existingRecords?: unknown) {
+  const loopMode = normalizeLoopMode(process.env.MT_YELLOW_PAGES_LOOP_MODE);
   const available = getAvailableProviders();
+  const leadRecords = existingRecords ?? getExistingLeadRecords(input as Record<string, unknown>);
+
   if (available.length === 0) {
     return {
       success: false,
       reason: 'no_provider_configured',
-      message: 'No fallback contact provider was configured. Set one of MT_PROVIDER_HUNTER_KEY, MT_PROVIDER_LUSHA_KEY, MT_PROVIDER_UPLEAD_KEY, MT_PROVIDER_OUTSCRAPER_KEY, or MT_PROVIDER_APIFY_KEY.',
+      message: 'No fallback contact provider was configured. Set one of MT_PROVIDER_HUNTER_KEY, MT_PROVIDER_LUSHA_KEY, MT_PROVIDER_UPLEAD_KEY, MT_PROVIDER_OUTSCRAPER_KEY, or MT_PROVIDER_APIFY_KEY with a non-empty value other than "na" or "none".',
       provider: null,
       contacts: [],
       source: 'yellow-pages',
+      loopMode,
+      lead_records: Array.isArray(leadRecords) ? leadRecords : [],
+      existing_leads: Array.isArray(leadRecords) ? leadRecords : [],
     };
   }
 
@@ -203,18 +246,27 @@ async function lookupFallbackContact(input: Record<string, string | number | und
       const config: Record<string, string> = {};
       for (const candidate of providerCandidates) {
         const value = process.env[candidate.envName];
-        if (value) config[candidate.envName] = value;
+        if (isConfiguredEnvironmentValue(value)) config[candidate.envName] = value as string;
       }
       const result = await provider.lookup(config, input);
       const contacts = extractContactsFromProvider(result, provider.name);
-      if (contacts.length > 0) {
+      const enrichedContact = contacts.find((contact) => hasEnrichedContact(contact));
+
+      if (enrichedContact) {
         return {
           success: true,
           provider: provider.name,
           contacts,
           source: 'yellow-pages',
           metadata: result,
+          loopMode,
+          lead_records: Array.isArray(leadRecords) ? leadRecords : [],
+          existing_leads: Array.isArray(leadRecords) ? leadRecords : [],
         };
+      }
+
+      if (loopMode === 'first') {
+        break;
       }
     } catch (error) {
       logger.warn('Yellow pages provider lookup failed', {
@@ -229,7 +281,10 @@ async function lookupFallbackContact(input: Record<string, string | number | und
     provider: null,
     contacts: [],
     source: 'yellow-pages',
-    message: 'Fallback lookup ran successfully but no contact details were returned by the configured providers.',
+    mode: loopMode,
+    message: 'Fallback lookup did not produce an enriched contact. Returning the existing lead records unchanged.',
+    lead_records: Array.isArray(leadRecords) ? leadRecords : [],
+    existing_leads: Array.isArray(leadRecords) ? leadRecords : [],
   };
 }
 
@@ -247,11 +302,13 @@ const businessLookupTool: McpTool = {
     required: ['domain'],
   },
   async execute(input: unknown) {
-    const payload = input as { domain?: string; company_name?: string; query?: string; location?: string };
+    const payload = input as { domain?: string; company_name?: string; query?: string; location?: string; lead_records?: unknown[]; leads?: unknown[]; records?: unknown[]; existing_leads?: unknown[] };
     const domain = payload.domain?.trim();
     const companyName = payload.company_name?.trim();
     const query = payload.query?.trim();
     const location = payload.location?.trim();
+
+    const existingLeadRecords = payload.lead_records ?? payload.leads ?? payload.records ?? payload.existing_leads;
 
     const lookupInput: Record<string, string | number | undefined> = {
       domain: domain || undefined,
@@ -260,7 +317,7 @@ const businessLookupTool: McpTool = {
       location: location || undefined,
     };
 
-    return lookupFallbackContact(lookupInput);
+    return lookupFallbackContact(lookupInput, existingLeadRecords);
   },
 };
 
@@ -277,17 +334,23 @@ const personLookupTool: McpTool = {
     required: ['name'],
   },
   async execute(input: unknown) {
-    const payload = input as { name?: string; company_name?: string; domain?: string };
-    return lookupFallbackContact({
-      query: payload.name,
-      company_name: payload.company_name,
-      domain: payload.domain,
-    });
+    const payload = input as { name?: string; company_name?: string; domain?: string; lead_records?: unknown[]; leads?: unknown[]; records?: unknown[]; existing_leads?: unknown[] };
+    const existingLeadRecords = payload.lead_records ?? payload.leads ?? payload.records ?? payload.existing_leads;
+
+    return lookupFallbackContact(
+      {
+        query: payload.name,
+        company_name: payload.company_name,
+        domain: payload.domain,
+      },
+      existingLeadRecords,
+    );
   },
 };
 
 export function createServer(config?: Partial<YellowPagesServerConfig>): McpServer {
   const tools: McpTool[] = [businessLookupTool, personLookupTool];
+  const loopMode = normalizeLoopMode(config?.loopMode ?? process.env.MT_YELLOW_PAGES_LOOP_MODE);
 
   return {
     name: 'yellow-pages',
