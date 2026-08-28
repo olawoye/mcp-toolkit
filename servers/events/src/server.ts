@@ -17,27 +17,30 @@ export interface McpServer {
   start(): void;
 }
 
-export const requiredEnvironment = ['MT_PROVIDER_EVENTBRITE_URL', 'MT_PROVIDER_EVENTBRITE_KEY'] as const;
+export const requiredEnvironment = ['MT_PROVIDER_SERP_URL', 'MT_PROVIDER_SERP_KEY'] as const;
 
 export interface EventsServerConfig {
-  provider?: 'eventbrite';
+  provider?: 'serpapi';
   apiKey?: string;
   baseUrl?: string;
 }
 
 const resolveConfig = (config?: Partial<EventsServerConfig>): Required<Pick<EventsServerConfig, 'provider' | 'apiKey' | 'baseUrl'>> => ({
-  provider: config?.provider ?? 'eventbrite',
-  apiKey: config?.apiKey ?? process.env.MT_PROVIDER_EVENTBRITE_KEY ?? process.env.EVENTBRITE_API_KEY ?? '',
-  baseUrl: config?.baseUrl ?? process.env.MT_PROVIDER_EVENTBRITE_URL ?? process.env.EVENTBRITE_BASE_URL ?? 'https://www.eventbriteapi.com/v3',
+  provider: config?.provider ?? 'serpapi',
+  apiKey: config?.apiKey ?? process.env.MT_PROVIDER_SERP_KEY ?? process.env.SERPAPI_API_KEY ?? '',
+  baseUrl: config?.baseUrl ?? process.env.MT_PROVIDER_SERP_URL ?? process.env.SERPAPI_BASE_URL ?? 'https://serpapi.com',
 });
 
-async function callEventbrite(config: ReturnType<typeof resolveConfig>, params: Record<string, string | number | undefined>): Promise<Record<string, unknown>> {
+async function callSerpApi(
+  config: ReturnType<typeof resolveConfig>,
+  params: Record<string, string | number | undefined>,
+): Promise<Record<string, unknown>> {
   if (!config.apiKey) {
-    throw new Error('MT_PROVIDER_EVENTBRITE_KEY is not configured. Provide it via environment or server config.');
+    throw new Error('MT_PROVIDER_SERP_KEY is not configured. Provide it via environment or server config.');
   }
 
-  const url = new URL(`${config.baseUrl}/events/search`);
-  url.searchParams.set('token', config.apiKey);
+  const url = new URL(`${config.baseUrl}/search.json`);
+  url.searchParams.set('api_key', config.apiKey);
 
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && value !== '') {
@@ -48,13 +51,12 @@ async function callEventbrite(config: ReturnType<typeof resolveConfig>, params: 
   const response = await fetch(url.toString(), {
     headers: {
       Accept: 'application/json',
-      Authorization: `Bearer ${config.apiKey}`,
     },
   });
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Eventbrite lookup failed (${response.status}): ${body}`);
+    throw new Error(`SerpAPI Google Events lookup failed (${response.status}): ${body}`);
   }
 
   return (await response.json()) as Record<string, unknown>;
@@ -62,7 +64,7 @@ async function callEventbrite(config: ReturnType<typeof resolveConfig>, params: 
 
 const eventsSearchTool: McpTool = {
   name: 'events_search',
-  description: 'Search Eventbrite for events and communities relevant to the target ICP.',
+  description: 'Search Google Events via SerpAPI for local communities, conferences, and ecosystem events relevant to the target ICP.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -74,32 +76,32 @@ const eventsSearchTool: McpTool = {
   },
   async execute(input: unknown) {
     const payload = input as { query: string; location?: string; days?: number };
-    const now = new Date();
-    const end = new Date(now.getTime() + (payload.days ?? 30) * 24 * 60 * 60 * 1000);
-
-    const result = await callEventbrite(resolveConfig(), {
+    const result = await callSerpApi(resolveConfig(), {
+      engine: 'google_events',
       q: payload.query,
-      'location.address': payload.location,
-      'start_date.range_start': now.toISOString(),
-      'start_date.range_end': end.toISOString(),
-      sort_by: 'date',
-      page: 1,
+      location: payload.location,
+      hl: 'en',
+      gl: 'us',
     });
 
-    const events = Array.isArray(result.events)
-      ? result.events.map((entry) => {
-          const event = entry as Record<string, unknown>;
-          return {
-            id: event.id ?? null,
-            name: typeof event.name === 'object' ? (event.name as Record<string, unknown>).text ?? null : null,
-            url: event.url ?? null,
-            start: event.start ?? null,
-            end: event.end ?? null,
-            venue: event.venue ?? null,
-            status: event.status ?? null,
-          };
-        })
-      : [];
+    const eventResults = Array.isArray(result.events_results)
+      ? result.events_results
+      : Array.isArray(result.events)
+        ? result.events
+        : [];
+
+    const events = eventResults.map((entry) => {
+      const event = entry as Record<string, unknown>;
+      return {
+        id: event.title ?? event.name ?? event.event_id ?? null,
+        title: event.title ?? (typeof event.name === 'object' ? (event.name as Record<string, unknown>).text ?? null : null),
+        url: event.link ?? event.url ?? null,
+        start: event.start_time ?? event.start ?? null,
+        end: event.end_time ?? event.end ?? null,
+        venue: event.venue ?? event.location ?? null,
+        source: event.source ?? 'serpapi',
+      };
+    });
 
     return {
       success: true,
@@ -107,7 +109,7 @@ const eventsSearchTool: McpTool = {
       location: payload.location ?? null,
       days: payload.days ?? 30,
       events,
-      provider: 'eventbrite',
+      provider: 'serpapi',
       source: 'events',
     };
   },
@@ -115,7 +117,7 @@ const eventsSearchTool: McpTool = {
 
 const signalMonitoringTool: McpTool = {
   name: 'signal_monitoring',
-  description: 'Monitor Eventbrite activity such as launches, communities, and ecosystem triggers related to target businesses.',
+  description: 'Monitor Google Events for launches, communities, and ecosystem triggers related to target businesses.',
   inputSchema: {
     type: 'object',
     properties: {
@@ -126,23 +128,29 @@ const signalMonitoringTool: McpTool = {
   },
   async execute(input: unknown) {
     const payload = input as { company_name: string; trigger_types?: string[] };
-    const result = await callEventbrite(resolveConfig(), {
+    const result = await callSerpApi(resolveConfig(), {
+      engine: 'google_events',
       q: payload.company_name,
-      page: 1,
-      sort_by: 'date',
+      location: 'global',
+      hl: 'en',
+      gl: 'us',
     });
 
-    const signals = Array.isArray(result.events)
-      ? result.events.map((entry) => {
-          const event = entry as Record<string, unknown>;
-          return {
-            company_name: payload.company_name,
-            title: typeof event.name === 'object' ? (event.name as Record<string, unknown>).text ?? payload.company_name : payload.company_name,
-            url: event.url ?? null,
-            trigger_type: (payload.trigger_types ?? ['launch', 'community', 'expansion'])[0] ?? 'launch',
-          };
-        })
-      : [];
+    const eventResults = Array.isArray(result.events_results)
+      ? result.events_results
+      : Array.isArray(result.events)
+        ? result.events
+        : [];
+
+    const signals = eventResults.map((entry) => {
+      const event = entry as Record<string, unknown>;
+      return {
+        company_name: payload.company_name,
+        title: event.title ?? payload.company_name,
+        url: event.link ?? event.url ?? null,
+        trigger_type: (payload.trigger_types ?? ['launch', 'community', 'expansion'])[0] ?? 'launch',
+      };
+    });
 
     return {
       success: true,
@@ -150,7 +158,7 @@ const signalMonitoringTool: McpTool = {
       trigger_types: payload.trigger_types ?? ['hiring', 'funding', 'launch', 'expansion'],
       signals,
       source: 'events',
-      provider: 'eventbrite',
+      provider: 'serpapi',
     };
   },
 };
