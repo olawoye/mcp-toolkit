@@ -147,6 +147,22 @@
       "capabilities": ["lead-write", "contact-write", "activity-write", "crm_upsert_lead"]
     },
     {
+      "name": "yellow_pages_business_lookup",
+      "server": "yellow-pages",
+      "description": "Fallback directory-style business contact lookup when a paid enrichment provider returns no usable email or contact data.",
+      "category": "directory",
+      "status": "active",
+      "capabilities": ["directory-contact-fallback", "business-contact-lookup", "yellow_pages_business_lookup"]
+    },
+    {
+      "name": "yellow_pages_person_lookup",
+      "server": "yellow-pages",
+      "description": "Fallback person lookup by company, name, or domain using the first configured directory-style provider.",
+      "category": "directory",
+      "status": "active",
+      "capabilities": ["directory-person-fallback", "person-contact-lookup", "yellow_pages_person_lookup"]
+    },
+    {
       "name": "lead_scoring",
       "server": "company-intelligence",
       "description": "Score and rank a set of leads using a placeholder weighting model that will evolve over time.",

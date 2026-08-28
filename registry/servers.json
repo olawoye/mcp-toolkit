@@ -10,6 +10,7 @@
     { "name": "website-research", "package": "@mcp-toolkit/server-website-research", "status": "stub" },
     { "name": "company-intelligence", "package": "@mcp-toolkit/server-company-intelligence", "status": "stub" },
     { "name": "events", "package": "@mcp-toolkit/server-events", "status": "stub" },
+    { "name": "yellow-pages", "package": "@mcp-toolkit/server-yellow-pages", "status": "active" },
     { "name": "crm", "package": "@mcp-toolkit/server-crm", "status": "stub" }
   ]
 }
