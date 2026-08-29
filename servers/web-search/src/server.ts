@@ -34,6 +34,45 @@ const resolveConfig = (config?: Partial<WebSearchServerConfig>): Required<Pick<W
   baseUrl: config?.baseUrl ?? process.env.MT_PROVIDER_SERP_URL ?? process.env.SERPAPI_BASE_URL ?? 'https://serpapi.com',
 });
 
+function buildSearchQuery(query: string, siteFilters?: string[]): string {
+  const trimmedQuery = query.trim();
+  if (!trimmedQuery) return trimmedQuery;
+
+  const filters = (siteFilters ?? [])
+    .map((site) => site?.trim())
+    .filter((site): site is string => Boolean(site));
+
+  if (filters.length === 0) return trimmedQuery;
+
+  return `${trimmedQuery}${filters.map((site) => ` -site:${site}`).join('')}`;
+}
+
+function classifySearchResultUrl(url: string | null | undefined): { kind: 'direct-lead' | 'needs-extraction' | 'skip'; reason?: string } {
+  if (!url) return { kind: 'skip', reason: 'missing-url' };
+
+  const normalized = url.trim().toLowerCase();
+  const directLeadPatterns = [
+    /^(https?:\/\/)?(www\.)?(linkedin\.com|github\.com|angel\.co|crunchbase\.com|wellfound\.com|twitter\.com|x\.com|facebook\.com|instagram\.com)/i,
+    /\b(company|about|contact|services|pricing|team|profile|bio|people)\b/i,
+  ];
+
+  const skipPatterns = [
+    /^(https?:\/\/)?(www\.)?(google\.com|google\.[a-z]{2,3}|news\.google\.com|maps\.google\.com|mail\.google\.com)/i,
+    /goto\?/i,
+    /\b(job|jobs|salary|resume|cv|careers|recruit|vacancy)\b/i,
+  ];
+
+  if (skipPatterns.some((pattern) => pattern.test(normalized))) {
+    return { kind: 'skip', reason: 'navigation-or-job-page' };
+  }
+
+  if (directLeadPatterns.some((pattern) => pattern.test(normalized))) {
+    return { kind: 'direct-lead', reason: 'likely-direct-company-or-profile-page' };
+  }
+
+  return { kind: 'needs-extraction', reason: 'list-catalog-article-or-directory-page' };
+}
+
 async function callSerpApi(
   config: ReturnType<typeof resolveConfig>,
   params: Record<string, string | number | undefined>,
@@ -77,33 +116,54 @@ export function createServer(config?: Partial<WebSearchServerConfig>): McpServer
         query: { type: 'string', description: 'Search query to execute.' },
         location: { type: 'string', description: 'Optional location to constrain results.' },
         limit: { type: 'number', description: 'Maximum number of search results to return.' },
+        siteFilters: {
+          type: 'array',
+          description: 'Optional list of domains to exclude from the search using -site: filters.',
+          items: { type: 'string' },
+        },
       },
       required: ['query'],
     },
     async execute(input: unknown) {
-      const payload = input as { query: string; location?: string; limit?: number };
+      const payload = input as { query: string; location?: string; limit?: number; siteFilters?: string[] };
+      const normalizedQuery = buildSearchQuery(payload.query, payload.siteFilters);
 
       const result = await callSerpApi(resolved, {
         engine: 'google',
-        q: payload.query,
+        q: normalizedQuery,
         location: payload.location,
         num: payload.limit ?? 10,
       });
 
       const organicResults = Array.isArray(result.organic_results)
-        ? result.organic_results.map((entry) => ({
-            title: (entry as Record<string, unknown>).title ?? null,
-            snippet: (entry as Record<string, unknown>).snippet ?? null,
-            link: (entry as Record<string, unknown>).link ?? null,
-          }))
+        ? result.organic_results.map((entry) => {
+            const link = (entry as Record<string, unknown>).link ?? null;
+            const classification = classifySearchResultUrl(typeof link === 'string' ? link : null);
+
+            return {
+              title: (entry as Record<string, unknown>).title ?? null,
+              snippet: (entry as Record<string, unknown>).snippet ?? null,
+              link,
+              classification,
+              handoff: classification.kind === 'needs-extraction'
+                ? {
+                    target_tool: 'extract_website_data',
+                    target_field: 'url',
+                    instruction: 'This result is a list, catalog, article, or directory page; it should be processed by the website extractor to find individual lead candidates.',
+                  }
+                : null,
+            };
+          })
         : [];
 
       return {
         success: true,
-        query: payload.query,
+        query: normalizedQuery,
         location: payload.location ?? null,
         limit: payload.limit ?? 10,
         results: organicResults,
+        direct_leads: organicResults.filter((item) => item.classification.kind === 'direct-lead'),
+        needs_extraction: organicResults.filter((item) => item.classification.kind === 'needs-extraction'),
         provider: resolved.provider,
         source: 'web-search',
       };
