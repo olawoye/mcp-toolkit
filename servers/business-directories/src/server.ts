@@ -2,6 +2,11 @@ import { createLogger } from '@mcp-toolkit/logging';
 import http from 'node:http';
 import { directorySources, getSourcesByScope, type DirectorySource, type EntityType, type Region } from './catalog';
 
+function buildSearchUrl(source: DirectorySource, query: string): string | null {
+  if (!source.search_url_base) return null;
+  return source.search_url_base.replace('{query}', encodeURIComponent(query.trim()));
+}
+
 const logger = createLogger('business-directories-server');
 
 export interface McpTool {
@@ -99,6 +104,17 @@ const companyDirectorySearchTool: McpTool = {
     };
 
     const matchedSources = getSourcesByScope(filters);
+    const searchTargets = matchedSources.map((source) => ({
+      id: source.id,
+      name: source.name,
+      search_url: buildSearchUrl(source, payload.query),
+      search_url_base: source.search_url_base ?? null,
+      handoff: {
+        target_tool: 'extract_website_data',
+        target_field: 'search_url',
+        instruction: 'Use the source search URL as a discovery target and hand it to the website extractor for result-page analysis.',
+      },
+    }));
 
     return {
       success: true,
@@ -118,7 +134,14 @@ const companyDirectorySearchTool: McpTool = {
         entity_types: source.entity_types,
         search_modes: source.search_modes,
         notes: source.notes ?? null,
+        search_url_base: source.search_url_base ?? null,
+        search_url: buildSearchUrl(source, payload.query),
       })),
+      search_targets: searchTargets,
+      handoff_note: {
+        target_tool: 'extract_website_data',
+        instruction: 'For each directory or person source, build a search URL from the source search_url_base and the curated query, then hand each resulting URL to the website extractor for page-level processing.',
+      },
       source: 'business-directories',
     };
   },
@@ -158,6 +181,17 @@ const personDirectorySearchTool: McpTool = {
       ...(scope.country ? { country: scope.country } : {}),
       limit: payload.limit ?? 10,
     });
+    const searchTargets = sources.map((source) => ({
+      id: source.id,
+      name: source.name,
+      search_url: buildSearchUrl(source, payload.query),
+      search_url_base: source.search_url_base ?? null,
+      handoff: {
+        target_tool: 'extract_website_data',
+        target_field: 'search_url',
+        instruction: 'Use the source search URL as a discovery target and hand it to the website extractor for result-page analysis.',
+      },
+    }));
 
     return {
       success: true,
@@ -177,7 +211,14 @@ const personDirectorySearchTool: McpTool = {
         country: source.country,
         search_modes: source.search_modes,
         notes: source.notes ?? null,
+        search_url_base: source.search_url_base ?? null,
+        search_url: buildSearchUrl(source, payload.query),
       })),
+      search_targets: searchTargets,
+      handoff_note: {
+        target_tool: 'extract_website_data',
+        instruction: 'For each directory or person source, build a search URL from the source search_url_base and the curated query, then hand each resulting URL to the website extractor for page-level processing.',
+      },
       source: 'business-directories',
     };
   },

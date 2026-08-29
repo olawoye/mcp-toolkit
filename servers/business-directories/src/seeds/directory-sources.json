@@ -7,6 +7,7 @@
     "region": "north-america",
     "country": "us",
     "url": "https://business.google.com",
+    "search_url_base": "https://www.google.com/search?q={query}",
     "search_modes": ["query", "location"],
     "notes": "Useful for local business discovery and service businesses.",
     "recommended_for": ["local-business", "service-provider"]
@@ -19,6 +20,7 @@
     "region": "north-america",
     "country": "us",
     "url": "https://www.yellowpages.com",
+    "search_url_base": "https://www.yellowpages.com/search?search_terms={query}",
     "search_modes": ["query", "location"],
     "notes": "Strong for SMB and local directories.",
     "recommended_for": ["local-business", "service-provider"]
@@ -31,6 +33,7 @@
     "region": "north-america",
     "country": "us",
     "url": "https://clutch.co",
+    "search_url_base": "https://clutch.co/projects?search={query}",
     "search_modes": ["query", "location"],
     "notes": "Useful for agency, service, and SaaS firm discovery.",
     "recommended_for": ["agency", "service-business"]
@@ -43,6 +46,7 @@
     "region": "europe",
     "country": "uk",
     "url": "https://find-and-update.company-information.service.gov.uk",
+    "search_url_base": "https://find-and-update.company-information.service.gov.uk/search?q={query}",
     "search_modes": ["query", "company_name"],
     "notes": "Official UK business registry lookup.",
     "recommended_for": ["company-registry", "legal-entity"]
@@ -55,6 +59,7 @@
     "region": "europe",
     "country": "uk",
     "url": "https://www.linkedin.com/company",
+    "search_url_base": "https://www.linkedin.com/search/results/companies/?keywords={query}",
     "search_modes": ["query", "location"],
     "notes": "Useful for staffing and company profile discovery.",
     "recommended_for": ["business-profile", "company-search"]
@@ -79,6 +84,7 @@
     "region": "europe",
     "country": "de",
     "url": "https://www.ihk.de",
+    "search_url_base": "https://www.ihk.de/search?q={query}",
     "search_modes": ["query", "location"],
     "notes": "Useful for regional business listings in Germany.",
     "recommended_for": ["german-business"]
@@ -91,6 +97,7 @@
     "region": "asia",
     "country": "in",
     "url": "https://www.justdial.com",
+    "search_url_base": "https://www.justdial.com/search?q={query}",
     "search_modes": ["query", "location"],
     "notes": "Country and city-specific local business discovery.",
     "recommended_for": ["local-business", "service-provider"]
@@ -115,6 +122,7 @@
     "region": "oceania",
     "country": "au",
     "url": "https://www.yellowpages.com.au",
+    "search_url_base": "https://www.yellowpages.com.au/search?query={query}",
     "search_modes": ["query", "location"],
     "notes": "Useful for Australian local and regional business discovery.",
     "recommended_for": ["local-business", "service-provider"]
@@ -127,6 +135,7 @@
     "region": "africa",
     "country": "za",
     "url": "https://www.yellosa.co.za",
+    "search_url_base": "https://www.yellosa.co.za/search?q={query}",
     "search_modes": ["query", "location"],
     "notes": "Useful for South African SMB discovery.",
     "recommended_for": ["local-business", "service-provider"]
@@ -139,6 +148,7 @@
     "region": "south-america",
     "country": "br",
     "url": "https://www.google.com/search?q=empresas+brasil",
+    "search_url_base": "https://www.google.com/search?q={query}",
     "search_modes": ["query", "location"],
     "notes": "Useful for regional and local company discovery in Brazil.",
     "recommended_for": ["local-business", "service-provider"]

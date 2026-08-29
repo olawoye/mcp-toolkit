@@ -7,6 +7,7 @@
     "region": "north-america",
     "country": "us",
     "url": "https://www.linkedin.com/search/results/people",
+    "search_url_base": "https://www.linkedin.com/search/results/people/?keywords={query}",
     "search_modes": ["person_name", "company_name", "location"],
     "notes": "Useful for founder and executive person discovery.",
     "recommended_for": ["founder", "executive", "decision-maker"]
@@ -19,6 +20,7 @@
     "region": "europe",
     "country": "uk",
     "url": "https://www.linkedin.com/search/results/people",
+    "search_url_base": "https://www.linkedin.com/search/results/people/?keywords={query}",
     "search_modes": ["person_name", "company_name", "location"],
     "notes": "Useful for UK founders and senior decision-makers.",
     "recommended_for": ["founder", "executive", "decision-maker"]
@@ -31,6 +33,7 @@
     "region": "asia",
     "country": "sg",
     "url": "https://www.linkedin.com",
+    "search_url_base": "https://www.linkedin.com/search/results/people/?keywords={query}",
     "search_modes": ["person_name", "company_name", "location"],
     "notes": "Useful for senior-level individual discovery in Singapore market.",
     "recommended_for": ["executive", "founder", "decision-maker"]
@@ -43,6 +46,7 @@
     "region": "oceania",
     "country": "au",
     "url": "https://www.linkedin.com",
+    "search_url_base": "https://www.linkedin.com/search/results/people/?keywords={query}",
     "search_modes": ["person_name", "company_name", "location"],
     "notes": "Useful for executive and founder discovery in Australia.",
     "recommended_for": ["executive", "founder", "decision-maker"]

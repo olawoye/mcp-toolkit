@@ -12,6 +12,7 @@ export interface DirectorySource {
   region: Region;
   country: string;
   url?: string;
+  search_url_base?: string;
   search_modes: Array<'query' | 'company_name' | 'person_name' | 'domain' | 'location'>;
   notes?: string;
   recommended_for?: string[];
