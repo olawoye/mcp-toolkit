@@ -42,6 +42,84 @@ function normalizeOutputSchema(value: unknown): ExtractionSchema | undefined {
   return value as ExtractionSchema;
 }
 
+function normalizePageKind(url: string, title: string, bodyText: string): 'list' | 'profile' | 'article' | 'unknown' {
+  const normalizedUrl = url.toLowerCase();
+  const normalizedTitle = title.toLowerCase();
+  const normalizedBody = bodyText.toLowerCase();
+
+  const listSignals = [
+    /company|companies|agency|agencies|directory|directories|listing|listings|providers|partners|firms|vendors|members|find|search/i,
+    /best\s+.*(company|agency|firm)|top\s+.*(company|agency|firm)|featured\s+.*(company|agency|firm)/i,
+    /\b(agency|company|firm|vendor|provider)\b/i,
+  ];
+
+  const profileSignals = [
+    /about|team|contact|services|pricing|careers|leadership|company profile|our company/i,
+  ];
+
+  const articleSignals = [
+    /blog|news|article|insights|resources|post|press release/i,
+  ];
+
+  if (listSignals.some((pattern) => pattern.test(normalizedUrl) || pattern.test(normalizedTitle) || pattern.test(normalizedBody))) {
+    return 'list';
+  }
+
+  if (profileSignals.some((pattern) => pattern.test(normalizedUrl) || pattern.test(normalizedTitle) || pattern.test(normalizedBody))) {
+    return 'profile';
+  }
+
+  if (articleSignals.some((pattern) => pattern.test(normalizedUrl) || pattern.test(normalizedTitle) || pattern.test(normalizedBody))) {
+    return 'article';
+  }
+
+  return 'unknown';
+}
+
+function collectOutboundLinks(html: string, baseUrl: string): string[] {
+  const matches = [...html.matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>/gi)];
+  const links = matches
+    .map((match) => match[1])
+    .map((href) => {
+      const candidate = href.trim();
+      if (!candidate || /^javascript:/i.test(candidate) || /^mailto:/i.test(candidate) || /^#/i.test(candidate)) {
+        return null;
+      }
+      try {
+        return new URL(candidate, baseUrl).toString();
+      } catch {
+        return null;
+      }
+    })
+    .filter((link): link is string => Boolean(link))
+    .filter((link, index, arr) => arr.indexOf(link) === index);
+
+  return links.filter((link) => !link.startsWith('https://google.com') && !link.startsWith('https://www.google.com'));
+}
+
+function extractCandidateCards(html: string, baseUrl: string): Array<{ title?: string | null; url?: string | null; text?: string | null }> {
+  const cards: Array<{ title?: string | null; url?: string | null; text?: string | null }> = [];
+  const anchors = [...html.matchAll(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi)];
+
+  for (const match of anchors) {
+    const href = match[1]?.trim();
+    const innerText = match[2]?.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!href || !innerText) continue;
+
+    try {
+      const url = new URL(href, baseUrl).toString();
+      if (url.startsWith(baseUrl) || /^https?:\/\//i.test(href) === false) {
+        continue;
+      }
+      cards.push({ title: innerText, url, text: innerText });
+    } catch {
+      // ignore malformed links
+    }
+  }
+
+  return cards.slice(0, 50);
+}
+
 const extractWebsiteDataTool: McpTool = {
   name: 'extract_website_data',
   description: 'Fetch a URL, inspect the HTML/text content, and extract structured lead data according to a natural-language extractionQuery and optional JSON output schema.',
@@ -77,6 +155,12 @@ const extractWebsiteDataTool: McpTool = {
     const maxChars = Number(payload.max_chars ?? 120_000);
 
     let pageText = '';
+    let title = '';
+    let canonicalUrl = url;
+    let outboundLinks: string[] = [];
+    let candidateCards: Array<{ title?: string | null; url?: string | null; text?: string | null }> = [];
+    let pageKind: 'list' | 'profile' | 'article' | 'unknown' = 'unknown';
+
     try {
       const response = await fetch(url, {
         headers: { Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8' },
@@ -85,12 +169,25 @@ const extractWebsiteDataTool: McpTool = {
         throw new Error(`Fetch failed (${response.status}) for ${url}`);
       }
       const html = await response.text();
+
+      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      title = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim() : '';
+
+      const canonicalMatch = html.match(/<link[^>]+rel=["']canonical["'][^>]+href=["']([^"']+)["'][^>]*>/i);
+      canonicalUrl = canonicalMatch ? new URL(canonicalMatch[1], url).toString() : url;
+
+      outboundLinks = collectOutboundLinks(html, url);
+      candidateCards = extractCandidateCards(html, url);
+
       pageText = html
         .replace(/<script[\s\S]*?<\/script>/gi, ' ')
         .replace(/<style[\s\S]*?<\/style>/gi, ' ')
         .replace(/<[^>]+>/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
+
+      pageKind = normalizePageKind(canonicalUrl, title, pageText);
+
       if (pageText.length > maxChars) {
         pageText = pageText.slice(0, maxChars);
       }
@@ -105,9 +202,14 @@ const extractWebsiteDataTool: McpTool = {
     return {
       success: true,
       url,
+      canonical_url: canonicalUrl,
+      title,
+      page_kind: pageKind,
+      pageText,
+      outbound_links: outboundLinks,
+      candidate_cards: candidateCards,
       extractionQuery,
       outputSchema,
-      pageText,
       extracted_fields: [],
       extracted_data: {},
       source: 'website-extraction',
